@@ -1,0 +1,41 @@
+body {
+    margin: 0px;
+    font-family: 'Quicksand', sans-serif;
+}
+header {
+    background-color: #e44424;
+    border-bottom: 1px solid #a52c14;
+    width: 100%;
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 5px;
+}
+
+#wrapper {
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.file-picker-button {
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
+}
+
+.file-picker-button input[type="file"] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+#file-picker {
+    display: none;
+}
