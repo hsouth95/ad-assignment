@@ -2,7 +2,7 @@ import datetime
 import jinja2
 import os
 import webapp2
-import models
+import entry
 
 from google.appengine.api import users
 
@@ -14,4 +14,9 @@ class MainPage(webapp2.RequestHandler):
         template = template_env.get_template('home.html')
         self.response.out.write(template.render())
 
-app = webapp2.WSGIApplication([('/', MainPage)], debug=True)
+class EntryPage(webapp2.RequestHandler):
+    def post(self):
+        entry = Entry(content=self.request.get("meta"))
+        entry.put()
+
+app = webapp2.WSGIApplication([('/', MainPage), ('/entry', EntryPage)], debug=True)
