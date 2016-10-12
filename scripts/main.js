@@ -31,19 +31,22 @@ $(function(){
       if(FileReader && image) {
           var fr = new FileReader();
           fr.onload = function () {
-            document.getElementById("uploadedImage").src = fr.result;
-            fileSelected = true;
-            document.getElementById("file-picker-progress").innerHTML = "";
+            appendImage(fr.result);
           }
           fr.readAsDataURL(image);
-          document.getElementById("file-picker-progress").innerHTML =
-          "<div class='spinner'><div class='double-bounce1'></div><div class='double-bounce2'></div></div>";
       } else {
         alert("File reading not supported!");
       }
     }
 
-    $("#file-picker-section").on("click", function(){
+    appendImage = function(image){
+        var uploadedImage = document.createElement("img");
+        uploadedImage.src = image;
+        $(".drag-n-drop-content").html(uploadedImage)
+        $(".drag-n-drop-overlay").removeClass("pointer");
+    }
+
+    $("#file-picker-button").on("click", function(){
         if(!fileSelected){
           $("#file-picker").trigger("click");
         }
