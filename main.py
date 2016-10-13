@@ -1,26 +1,36 @@
-import datetime
 import jinja2
 import os
 import webapp2
-import entry
 
 from google.appengine.ext import ndb
 from google.appengine.api import users
+from google.appengine.ext import blobstore
+from google.appengine.ext.webapp import blobstore_handlers
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
-
+        upload_url = blobstore.create_upload_url('/upload')
         template = template_env.get_template('home.html')
-        self.response.out.write(template.render())
+        context = {
+            'upload_url': upload_url
+        }
+        self.response.out.write(template.render(context))
 
-class EntryPage(webapp2.RequestHandler):
+class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
-        entry = Entry(content=self.request.get("meta"))
-        entry.put()
+        try:
+            upload = self.get_uploads()[0]
+            name = self.request.get("filename")
+            photo = UserPhoto(name=name, blob_key=upload.key())
 
-class Entry(ndb.Model):
-    content = ndb.StringProperty(indexed=False)
+            photo.put()
+        except:
+            self.error(500)
 
-app = webapp2.WSGIApplication([('/', MainPage), ('/entry', EntryPage)], debug=True)
+class UserPhoto(ndb.Model):
+    name = ndb.StringProperty()
+    blob_key = ndb.BlobKeyProperty()
+
+app = webapp2.WSGIApplication([('/', MainPage),('/upload', UploadHandler)], debug=True)

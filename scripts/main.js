@@ -55,8 +55,6 @@ $(function(){
 
         addField("height", "Height", "number", image.height);
         addField("width", "Width", "number", image.width);
-
-        resetForm(true);
     }
 
     cancel = function(e) {
@@ -120,6 +118,13 @@ $(function(){
 
          pickFile(e.originalEvent);
          return false;
+    });
+
+    $("#submit").on("click", function(e){
+        e = e || window.event;
+        if(e.preventDefault){
+            e.preventDefault();
+        }
     });
 
     document.getElementById("file-picker").onchange = pickFile;

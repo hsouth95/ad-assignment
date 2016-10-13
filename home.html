@@ -13,7 +13,7 @@
             <h1>WS Ltd Prototype</h1>
         </header>
         <div id="wrapper">
-            <form id="file-form" class="pure-form pure-form-stacked pure-g" method="post" enctype="multipart/form-data">
+            <form action="{{ upload_url }}" id="file-form" class="pure-form pure-form-stacked pure-g" method="post" enctype="multipart/form-data">
                 <div class="file-wrapper pure-u-2-3 pure-u-md-2-3">
                     <div id="file-picker-button" class="drag-n-drop-overlay pointer">
                         <span class="drag-n-drop-content"><i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Upload a file!</span>
@@ -27,7 +27,7 @@
                     </fieldset>
                 </div>
                 <input id="file-picker" type="file" name="file" accept="image/*,video/*,audio/*" accept=""/>
-                <input type="submit" />
+                <button class="pure-button" id="submit">Upload</button>
             </form>
         </div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
