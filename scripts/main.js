@@ -3,7 +3,7 @@ $(function(){
         loadingIcon = "<div class='spinner'><div class='double-bounce1'></div><div class='double-bounce2'></div></div>";
 
     pickFile = function(evt) {
-      var target = evt.target || window.event.srcElement,
+      var target = evt.dataTransfer || evt.target || window.event.srcElement,
           files = target.files;
 
       $(".drag-n-drop-content").html(loadingIcon);
