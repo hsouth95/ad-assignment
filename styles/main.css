@@ -9,6 +9,7 @@ specific font stacks to ensure the greatest OS/browser compatibility.
 html, button, input, select, textarea,
 .pure-g [class *= "pure-u"] {
     font-family: 'Quicksand', sans-serif;
+    letter-spacing: normal;
 }
 
 header {
