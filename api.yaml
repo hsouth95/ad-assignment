@@ -1,0 +1,17 @@
+#application: ad-assignment-147219
+service: api
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: .*
+  script: api.app
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+- name: jinja2
+  version: "2.6"
+- name: markupsafe
+  version: "0.15"

@@ -1,0 +1,6 @@
+dispatch:
+- url: "*/static/*"
+  module: default
+
+- url: "*/api/*"
+  module: api
