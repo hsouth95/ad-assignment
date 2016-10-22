@@ -21,6 +21,14 @@ class MainPage(webapp2.RequestHandler):
         }
         self.response.out.write(template.render(context))
 
+class FilePage(webapp2.RequestHandler):
+    def get(self):
+        template = template_env.get_template('files.html')
+        context = {
+            'title': 'WS Ltd Prototype'
+        }
+        self.response.out.write(template.render(context))
+
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
@@ -43,16 +51,22 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         except Exception as e:
             self.response.out.write(e.strerror);
 
-class ApiHandler(webapp2.RequestHandler):
+class ApiHandler(blobstore_handlers.BlobstoreDownloadHandler):
     def get(self):
-        module_url = 'http://{}'.format(modules.get_hostname(module='api'))
+        q = File.query()
 
-        result = urlfetch.fetch(module_url)
-        if result.status_code == 200:
-            self.response.out.write(result.content)
+        values = q.fetch(10)
+
+        if not blobstore.get(values[0].blob_key):
+            self.error(404)
+        else:
+            self.send_blob(values[0].blob_key)
 
 class File(ndb.Model):
     name = ndb.StringProperty()
     blob_key = ndb.BlobKeyProperty()
 
-app = webapp2.WSGIApplication([('/', MainPage),('/upload', UploadHandler), ('/hello', ApiHandler)], debug=True)
+app = webapp2.WSGIApplication([('/', MainPage),
+                            ('/upload', UploadHandler),
+                            ('/files', FilePage),
+                            ('/test', ApiHandler)], debug=True)
