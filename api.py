@@ -8,11 +8,12 @@ from google.appengine.ext.blobstore import BlobKey
 
 class FileModel(ndb.Model):
     name = ndb.StringProperty(required=True)
-    blob_key = ndb.BlobKeyProperty(required=True)
+    blob_key = ndb.BlobKeyProperty()
 
 class File(messages.Message):
-    name = messages.StringField(1, required=True)
-    blob_key = messages.StringField(2, required=True)
+    key = messages.IntegerField(1, required=True)
+    name = messages.StringField(2)
+    blob_key = messages.StringField(3)
 
 class FileList(messages.Message):
     items = messages.MessageField(File, 1, repeated = True)
@@ -30,12 +31,21 @@ class FileService(remote.Service):
 
         return request
 
-#    @endpoints.method(message_types.VoidMessage, File,
-#                      name='file.list',
-#                     path='files',
-#                      http_method='GET')
-#    def list_files(self, request):
-#        return File(name="hey!", blob_key="ajkgjhjagh")
+    @endpoints.method(message_types.VoidMessage, FileList,
+                      name='file.list',
+                     path='files',
+                      http_method='GET')
+    def list_files(self, request):
+        results = FileModel.query().fetch(10, keys_only=True)
+        if results is None:
+            raise endpoints.NotFoundException('No files found.')
+
+        files = []
+        for item in results:
+            files.append(File(key=item.id()))
+        return FileList(items=files)
+
+    @endpoints.method
 
 #    @endpoints.method(GET_RESOURCE, FILE,
 #                      path='files/{id}',
