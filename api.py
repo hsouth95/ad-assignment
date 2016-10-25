@@ -6,6 +6,8 @@ from protorpc import message_types
 from google.appengine.ext import ndb
 from google.appengine.ext.blobstore import BlobKey
 
+from endpoints_proto_datastore.ndb import EndpointsModel
+
 class FileModel(ndb.Model):
     name = ndb.StringProperty(required=True)
     blob_key = ndb.BlobKeyProperty()
@@ -44,8 +46,6 @@ class FileService(remote.Service):
         for item in results:
             files.append(File(key=item.id()))
         return FileList(items=files)
-
-    @endpoints.method
 
 #    @endpoints.method(GET_RESOURCE, FILE,
 #                      path='files/{id}',
