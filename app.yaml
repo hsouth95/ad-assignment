@@ -7,6 +7,8 @@ handlers:
   static_dir: styles
 - url: /js
   static_dir: scripts
+- url: /_ah/spi/.*
+  script: api.app
 - url: .*
   script: main.app
 
@@ -18,4 +20,4 @@ libraries:
 - name: markupsafe
   version: "0.15"
 - name: endpoints
-  version: 1.0
+  version: "latest"

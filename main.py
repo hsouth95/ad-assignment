@@ -1,9 +1,10 @@
 import jinja2
 import os
 import webapp2
+import urllib
+import json
 
 from google.appengine.ext import ndb
-from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.api import modules
 from google.appengine.api import urlfetch
@@ -38,33 +39,27 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         self.redirect('/')
 
     def post(self):
-        try:
-            upload = self.get_uploads()[0]
-            name = self.request.get("filename")
-            photo = File(name=name, blob_key=upload.key())
+        upload = self.get_uploads()[0]
 
-            photo.put()
+        form_fields = {
+            'name': self.request.get("filename"),
+            'blob_key': str(upload.key())
+        }
 
-            upload_url = blobstore.create_upload_url('/upload')
-
+        values = json.dumps(form_fields)
+        post_url = 'http://{0}/_ah/api/fileapi/v1/file'.format(
+                    modules.get_hostname(module='default'))
+        headers = {'Content-Type': 'application/json'}
+        result = urlfetch.fetch(
+            url=post_url,
+            payload=post_data,
+            method=urlfetch.POST,
+            headers = headers
+        )
+        if result.status_code == 200:
             self.redirect('/upload')
-        except Exception as e:
-            self.response.out.write(e.strerror);
-
-class ApiHandler(blobstore_handlers.BlobstoreDownloadHandler):
-    def get(self):
-        q = File.query()
-
-        values = q.fetch(10)
-
-        if not blobstore.get(values[0].blob_key):
-            self.error(404)
         else:
-            self.send_blob(values[0].blob_key)
-
-class File(ndb.Model):
-    name = ndb.StringProperty()
-    blob_key = ndb.BlobKeyProperty()
+            self.error(400)
 
 app = webapp2.WSGIApplication([('/', MainPage),
                             ('/upload', UploadHandler),
