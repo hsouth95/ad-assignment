@@ -75,6 +75,7 @@ $(function(){
         $(".drag-n-drop-overlay").removeClass("pointer");
         $("#submit").removeAttr("disabled");
 
+        addField("file_type", "File Type", "text", "image");
         addField("height", "Height", "number", image.height);
         addField("width", "Width", "number", image.width);
     }
@@ -156,7 +157,7 @@ $(function(){
                 beforeSend: function(){
                     setLoading();
                 },
-                processData: false,  // tell jQuery not to process the data
+                processData: false,
                 contentType: false,
                 success: function(data){
                     $("#file-form").attr("action", data);

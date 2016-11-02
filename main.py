@@ -40,19 +40,20 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
     def post(self):
         upload = self.get_uploads()[0]
-
+        value_key = str(upload.key())
         form_fields = {
             'name': self.request.get("filename"),
-            'blob_key': str(upload.key())
+            'blob_key': value_key,
+            'file_type': self.request.get("file_type")
         }
 
         values = json.dumps(form_fields)
-        post_url = 'http://{0}/_ah/api/fileapi/v1/file'.format(
+        post_url = 'http://{0}/_ah/api/metaapi/v1/file'.format(
                     modules.get_hostname(module='default'))
         headers = {'Content-Type': 'application/json'}
         result = urlfetch.fetch(
             url=post_url,
-            payload=post_data,
+            payload=values,
             method=urlfetch.POST,
             headers = headers
         )
@@ -61,7 +62,14 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         else:
             self.error(400)
 
+class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler):
+    def get(self, file_key):
+        if not blobstore.get(file_key):
+            self.error(404)
+        else:
+            self.send_blob(file_key)
+
 app = webapp2.WSGIApplication([('/', MainPage),
                             ('/upload', UploadHandler),
-                            ('/files', FilePage),
-                            ('/test', ApiHandler)], debug=True)
+                            ('/download/([^/]+)?', DownloadHandler),
+                            ('/files', FilePage)], debug=True)
