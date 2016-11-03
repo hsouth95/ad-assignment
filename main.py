@@ -35,9 +35,6 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         upload_url = blobstore.create_upload_url('/upload')
         self.response.out.write(upload_url)
 
-        # If the user goes to this URL, redirect them to the main page
-        self.redirect('/')
-
     def post(self):
         upload = self.get_uploads()[0]
         value_key = str(upload.key())

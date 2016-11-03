@@ -106,6 +106,7 @@ $(function(){
             inputElement.name = name;
             inputElement.id = name;
             inputElement.type = type;
+            inputElement.className = "form-control";
             inputElement.placeholder = labelText;
 
             labelElement.htmlFor = name;
@@ -115,7 +116,7 @@ $(function(){
                 inputElement.value = value;
             }
 
-            $("#file-form fieldset").append(labelElement, inputElement);
+            $("#file-form #fieldset").append(labelElement, inputElement);
 
             return true;
         } else {
@@ -137,9 +138,25 @@ $(function(){
 
         if(success) {
             $(".drag-n-drop-content").html("<i class='fa fa-upload' aria-hidden='true'></i>&nbsp;Drag or pick a file to upload.");
+            setUploadUrl(true);
         } else {
             $(".drag-n-drop-content").html("Opps! Something went wrong, please try again.");
         }
+    }
+
+    /**
+     * Sets the upload url of the file uploader
+     * @param {boolean} isSync - States if the request should be fired synchronously
+     */
+    setUploadUrl = function(isSync){
+        $.ajax({
+            url: "/upload",
+            type: "GET",
+            async: !!isAsync,
+            success: function(data){
+                $("#file-form").attr("action", data);
+            }
+        })
     }
 
     /** Asynchronously uploads the file and the fields to the server */
@@ -202,13 +219,5 @@ $(function(){
      * therefore every 9 minutes we request a new URL.
      * SEE: https://groups.google.com/forum/#!topic/google-appengine/55__MQ61EO0
      */
-    setInterval(function(){
-        $.ajax({
-            url: "/upload",
-            type: "GET",
-            success: function(data){
-                $("#file-form").attr("action", data);
-            }
-        })
-    }, 1000 * 60 * 9)
+    setInterval(setUploadUrl, 1000 * 60 * 9);
 });

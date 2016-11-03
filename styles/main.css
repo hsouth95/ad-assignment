@@ -6,9 +6,8 @@ When setting the primary font stack, apply it to the Pure grid units along
 with `html`, `button`, `input`, `select`, and `textarea`. Pure Grids use
 specific font stacks to ensure the greatest OS/browser compatibility.
 */
-html, button, input, select, textarea,
-.pure-g [class *= "pure-u"] {
-    font-family: 'Quicksand', sans-serif;
+html, button, input, select, textarea {
+    font-family: 'Quicksand', sans-serif !important;
     letter-spacing: normal;
 }
 
@@ -23,7 +22,6 @@ header {
 input[type="text"],
 input[type="number"] {
     width: 100%;
-    outline-color: blue !important;
 }
 
 #wrapper {
@@ -83,11 +81,6 @@ input[type="number"] {
 }
 /* End of Loading */
 
-.pure-g > div {
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-}
 .file-wrapper {
     padding: 1em;
 }

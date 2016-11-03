@@ -14,17 +14,22 @@ class FileModel(EndpointsModel):
     name = ndb.StringProperty()
     file_type = ndb.StringProperty()
     blob_key = ndb.BlobKeyProperty()
+    owner = ndb.UserProperty()
+    created = ndb.DateTimeProperty(auto_now_add=True)
 
-@endpoints.api(name='metaapi', version='v1', description='API for File meta data')
+@endpoints.api(name='metaapi', version='v1', description='API for File meta data',
+               audiences=[endpoints.API_EXPLORER_CLIENT_ID])
 class MetaApi(remote.Service):
-
-    @FileModel.method(path='file', http_method='POST', name='file.insert')
+    @FileModel.method(user_required=True,
+                      path='file', http_method='POST', name='file.insert')
     def FileInsert(self, file):
+        file.owner = endpoints.get_current_user()
         file.put()
         return file
 
-    @FileModel.query_method(path='files', name='file.list')
+    @FileModel.query_method(query_fields=('limit', 'order', 'pageToken'),
+                            path='files', name='file.list', user_required=True)
     def FileList(self, query):
-        return query
+        return query.filter(FileModel.owner == endpoints.get_current_user())
 
 app = endpoints.api_server([MetaApi], restricted=False)
