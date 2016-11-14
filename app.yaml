@@ -1,6 +1,6 @@
 runtime: python27
-api_version: 1
 threadsafe: yes
+api_version: 1
 
 handlers:
 - url: /css
@@ -21,3 +21,7 @@ libraries:
   version: "0.15"
 - name: endpoints
   version: "latest"
+
+env_variables:
+  ENDPOINTS_SERVICE_NAME: ad-assignment-147219.appspot.com
+  ENDPOINTS_SERVICE_VERSION: 8

@@ -15,7 +15,7 @@ template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 class MainPage(webapp2.RequestHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
-        template = template_env.get_template('home.html')
+        template = template_env.get_template('apitest.html')
         context = {
             'upload_url': upload_url,
             'title': "WS Ltd Prototype"

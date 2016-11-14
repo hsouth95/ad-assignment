@@ -16,8 +16,21 @@ class FileModel(EndpointsModel):
     blob_key = ndb.BlobKeyProperty()
     created = ndb.DateTimeProperty(auto_now_add=True)
 
-@endpoints.api(name='metaapi', version='v1', description='API for File meta data')
+@endpoints.api(name='metaapi', version='v1', description='API for File meta data',
+               allowed_client_ids=['CLIENT_ID',
+               endpoints.API_EXPLORER_CLIENT_ID])
 class MetaApi(remote.Service):
+
+    @endpoints.method(
+        path='greet',
+        http_method='GET',
+        name='greet'
+    )
+    def greet(self, request):
+        user = endpoints.get_current_user()
+        user_name = user.email() if user else 'Anon'
+        return 'Hello, {}'.format(user_name)
+
     @FileModel.method(user_required=True,
                       path='file', http_method='POST', name='file.insert')
     def FileInsert(self, file):
@@ -25,7 +38,7 @@ class MetaApi(remote.Service):
         return file
 
     @FileModel.query_method(query_fields=('limit', 'order', 'pageToken'),
-                            path='files', name='file.list')
+                            path='files', name='file.list', user_required=True)
     def FileList(self, query):
         return query
 

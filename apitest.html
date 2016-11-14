@@ -1,0 +1,35 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<script>
+function init(){
+// when they have completed.
+var apisToLoad;
+var callback = function() {
+  if (--apisToLoad == 0) {
+    auth();
+  }
+}
+
+apisToLoad = 2; // must match number of calls to gapi.client.load()
+
+    gapi.client.load('metaapi', 'v1', callback, '//' + window.location.host + '/_ah/api');
+    gapi.client.load('oauth2', 'v2', callback);
+}
+
+auth = function(){
+    gapi.auth.authorize({client_id: "CLIENT_ID",
+      scope: 'https://www.googleapis.com/auth/userinfo.email', immediate: false},
+      listCallback);
+}
+
+listCallback = function(){
+    gapi.client.metaapi.file.list().execute(function(resp){ console.log(resp) });
+}
+</script>
+<script src="https://apis.google.com/js/client.js?onload=init"></script>
+</body>
+</html>
