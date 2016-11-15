@@ -2,7 +2,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ title }}</title
-  <link href="//fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+<link href="//fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
 <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
 <link type="text/css" rel="stylesheet" href="/css/main.css">
 <link type="text/css" rel="stylesheet" href="/css/files.css">
@@ -10,6 +10,9 @@
 <body>
     <header>
         <h1>WS Ltd Prototype</h1>
+        <div class="login-box">
+            <button id="login-status" class="btn btn-primary"></button>
+        </div>
     </header>
     <div id="wrapper">
       <div class="container-fluid">
@@ -17,6 +20,14 @@
       </div>
   </div>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="/js/auth.js"></script>
 <script src="/js/files.js"></script>
+<script src="/js/header.js"></script>
+<script>
+init = function(){
+    harrison.assignment.header.init(listItems);
+}
+</script>
+<script src="https://apis.google.com/js/client.js?onload=init"></script>
 </body>
 </html>

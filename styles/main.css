@@ -10,13 +10,19 @@ html, button, input, select, textarea {
     font-family: 'Quicksand', sans-serif !important;
     letter-spacing: normal;
 }
-
+h1 {
+    display: inline;
+}
+.login-box {
+    float: right;
+}
 header {
     background-color: #e44424;
     border-bottom: 1px solid #a52c14;
     padding-left: 25px;
     padding-right: 25px;
     padding-top: 5px;
+    padding-bottom: 10px;
 }
 
 input[type="text"],

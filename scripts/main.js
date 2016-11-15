@@ -152,7 +152,7 @@ $(function(){
         $.ajax({
             url: "/upload",
             type: "GET",
-            async: !!isAsync,
+            async: !isSync,
             success: function(data){
                 $("#file-form").attr("action", data);
             }
@@ -166,7 +166,6 @@ $(function(){
         // To allow for async file uploads we require FormData, IE 9 does not use this
         if(typeof FormData !== "undefined"){
             var formData = new FormData($("#file-form")[0]);
-
             $.ajax({
                 url: url,
                 type: "POST",
@@ -177,11 +176,30 @@ $(function(){
                 processData: false,
                 contentType: false,
                 success: function(data){
-                    $("#file-form").attr("action", data);
-                    resetForm(true);
+                    postFileData(data.blob_key);
                 }
-            })
+            });
         }
+    }
+
+    convertFormToJSON = function(form) {
+        var array = $(form).serializeArray();
+        var json = {};
+
+        $.each(array, function(){
+            json[this.name] = this.value || "";
+        });
+
+        return json;
+    }
+
+    postFileData = function(blob_key) {
+        var json = convertFormToJSON("#file-form");
+        json.blob_key = blob_key;
+        gapi.client.metaapi.file.insert(json).execute(function(resp){
+            setUploadUrl(true);
+            resetForm(true);
+        });
     }
 
     $("#file-picker-button").on("click", function(){

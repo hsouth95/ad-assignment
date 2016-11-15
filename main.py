@@ -15,7 +15,7 @@ template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 class MainPage(webapp2.RequestHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
-        template = template_env.get_template('apitest.html')
+        template = template_env.get_template('home.html')
         context = {
             'upload_url': upload_url,
             'title': "WS Ltd Prototype"
@@ -38,26 +38,11 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         upload = self.get_uploads()[0]
         value_key = str(upload.key())
-        form_fields = {
-            'name': self.request.get("filename"),
-            'blob_key': value_key,
-            'file_type': self.request.get("file_type")
+        self.response.headers['Content-Type'] = 'application/json'
+        response = {
+            'blob_key': value_key
         }
-
-        values = json.dumps(form_fields)
-        post_url = 'http://{0}/_ah/api/metaapi/v1/file'.format(
-                    modules.get_hostname(module='default'))
-        headers = {'Content-Type': 'application/json'}
-        result = urlfetch.fetch(
-            url=post_url,
-            payload=values,
-            method=urlfetch.POST,
-            headers = headers
-        )
-        if result.status_code == 200:
-            self.redirect('/upload')
-        else:
-            self.error(400)
+        self.response.out.write(json.dumps(response))
 
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, file_key):
