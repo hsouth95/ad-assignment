@@ -1,0 +1,1 @@
+﻿uglifyjs scripts/auth.js scripts/header.js -o scripts/assignment.min.js -m -c
