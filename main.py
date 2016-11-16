@@ -1,7 +1,7 @@
 import jinja2
 import os
 import webapp2
-import urllib
+import urllib, urllib2
 import json
 
 from google.appengine.ext import ndb
@@ -9,6 +9,7 @@ from google.appengine.ext import blobstore
 from google.appengine.api import modules
 from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import blobstore_handlers
+from poster.encode import multipart_encode, MultipartParam
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
@@ -30,6 +31,27 @@ class FilePage(webapp2.RequestHandler):
         }
         self.response.out.write(template.render(context))
 
+class FileSend(webapp2.RequestHandler):
+    def post(self):
+        value = self.request.get("file")
+        url = "http://localhost:8080/test"
+        form_data = {
+            'file': str(value)
+        }
+        headers = { 'Content-Type': 'multipart/form-data'}
+        result = urlfetch.fetch(
+            url=url,
+            payload=form_data,
+            method=urlfetch.POST,
+            headers=headers)
+        self.response.write(result.content)
+
+class TestClass(webapp2.RequestHandler):
+    def post(self):
+        if self.request.get("file"):
+            self.response.out.write(self.request.get("file"))
+        else:
+            self.error(404)
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
@@ -54,4 +76,6 @@ class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler):
 app = webapp2.WSGIApplication([('/', MainPage),
                             ('/upload', UploadHandler),
                             ('/download/([^/]+)?', DownloadHandler),
+                            ('/edit', FileSend),
+                            ('/test', TestClass),
                             ('/files', FilePage)], debug=True)
