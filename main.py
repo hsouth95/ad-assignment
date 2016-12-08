@@ -9,7 +9,6 @@ from google.appengine.ext import blobstore
 from google.appengine.api import modules
 from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import blobstore_handlers
-from poster.encode import multipart_encode, MultipartParam
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
@@ -66,6 +65,26 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         }
         self.response.out.write(json.dumps(response))
 
+class FileModel(ndb.Model):
+    name = ndb.StringProperty()
+    file_type = ndb.StringProperty()
+    blob_key = ndb.BlobKeyProperty()
+    date = ndb.DateTimeProperty(auto_now_add=True)
+
+class FileHandler(webapp2.RequestHandler):
+    def get(self):
+        files = FileModel.query().fetch(10)
+
+        self.response.write(
+            json.dumps(files.to_dict())
+        )
+    
+    def post(self):
+        fileModel = FileModel(name="Test",
+        file_type="Image")
+
+        fileModel.put()
+
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, file_key):
         if not blobstore.get(file_key):
@@ -78,4 +97,5 @@ app = webapp2.WSGIApplication([('/', MainPage),
                             ('/download/([^/]+)?', DownloadHandler),
                             ('/edit', FileSend),
                             ('/test', TestClass),
-                            ('/files', FilePage)], debug=True)
+                            ('/files', FilePage),
+                            ('/getfiles', FileHandler)], debug=True)

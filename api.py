@@ -1,35 +1,17 @@
-import endpoints
-from protorpc import remote
-from protorpc import messages
-from protorpc import message_types
-
+import cgi
 from google.appengine.ext import ndb
 from google.appengine.ext.blobstore import BlobKey
 
-from endpoints_proto_datastore.ndb import EndpointsModel
-
-class FileModel(EndpointsModel):
-    _message_fields_schema = ('id', 'name', 'file_type', 'blob_key')
-
+class FileModel(ndb.Model):
     name = ndb.StringProperty()
     file_type = ndb.StringProperty()
     blob_key = ndb.BlobKeyProperty()
-    created = ndb.DateTimeProperty(auto_now_add=True)
+    date = ndb.DateTimeProperty(auto_now_add=True)
 
-@endpoints.api(name='metaapi', version='v1', description='API for File meta data',
-               allowed_client_ids=['CLIENT_ID',
-               endpoints.API_EXPLORER_CLIENT_ID])
-class MetaApi(remote.Service):
+class FileHandler(webbapp2.RequestHandler):
+    def get(self):
+        files = FileModel.fetch(10)
 
-    @FileModel.method(user_required=True,
-                      path='file', http_method='POST', name='file.insert')
-    def FileInsert(self, file):
-        file.put()
-        return file
-
-    @FileModel.query_method(query_fields=('limit', 'order', 'pageToken'),
-                            path='files', name='file.list', user_required=True)
-    def FileList(self, query):
-        return query
+        self.response.out.write(cgi.escape(files))
 
 app = endpoints.api_server([MetaApi], restricted=False)
