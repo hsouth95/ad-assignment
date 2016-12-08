@@ -194,11 +194,21 @@ $(function(){
     }
 
     postFileData = function(blob_key) {
+        var url = window.location.protocol +  "//" + window.location.host + "/files";
+
         var json = convertFormToJSON("#file-form");
         json.blob_key = blob_key;
-        gapi.client.metaapi.file.insert(json).execute(function(resp){
-            setUploadUrl(true);
-            resetForm(true);
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: json,
+            success: function(data) {
+                setUploadUrl(true);
+                resetForm(true);
+            },
+            error: function(data) {
+                resetForm(false);
+            }
         });
     }
 

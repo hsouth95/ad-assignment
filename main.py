@@ -6,5 +6,5 @@ app = webapp2.WSGIApplication([('/', MainPage),
                             ('/upload', UploadHandler),
                             ('/download/([^/]+)?', DownloadHandler),
                             ('/edit', FileSend),
-                            ('/files', FilePage),
-                            ('/getfiles', FileHandler)], debug=True)
+                            ('/viewfiles', FilePage),
+                            ('/files', FileHandler)], debug=True)
