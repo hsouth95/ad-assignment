@@ -8,7 +8,7 @@ class Tag(ndb.Model):
 
 class Metadata(ndb.Model):
 
-    
+
 class ImageMetadata(Metadata):
     height = ndb.IntegerProperty()
     width = ndb.IntegerProperty()
@@ -17,7 +17,7 @@ class FileModel(ndb.Model):
     name = ndb.StringProperty()
     file_type = ndb.StringProperty()
     blob_key = ndb.BlobKeyProperty()
-    metadata = ndb.StructuredProperty()
+    metadata = ndb.StructuredProperty(Metadata, repeated=False)
     tags = ndb.StructuredProperty(Tag, repeated=True)
     created = ndb.DateTimeProperty(auto_now_add=True)
 
