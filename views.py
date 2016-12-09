@@ -3,6 +3,7 @@ import os
 import webapp2
 import json
 import datetime, time
+import logging
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
@@ -38,25 +39,26 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         upload = self.get_uploads()[0]
         value_key = str(upload.key())
+        
+        previous_blob_key = self.request.get("blob_key")
+
+        # Are we replacing the file?
+        if previous_blob_key:
+            previous_blob = blobstore.get(BlobKey(previous_blob_key))
+            if previous_blob:
+                previous_blob.delete()
+            
+            # Retrieve the datastore entity this file belongs to
+            files = FileModel.query(FileModel.blob_key == BlobKey(previous_blob_key))
+            for file in files:
+                file.blob_key = BlobKey(value_key)
+                file.put()
+        
         self.response.headers['Content-Type'] = 'application/json'
         response = {
             'blob_key': value_key
         }
         self.response.out.write(json.dumps(response))
-
-class ReplaceHandler(blobstore_handlers.BlobstoreUploadHandler):
-    def post(self):
-        upload = self.get_uploads()[0]
-        value_key = str(upload.key())
-        
-        old_blob_key = self.request.get("blob_key")
-        
-        
-        self.response.headers['Content-Type'] = 'application/json'
-        response = {
-            'blob_key': value_key
-        }
-
 
 class FileHandler(webapp2.RequestHandler):
     def get(self):
