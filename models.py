@@ -7,10 +7,10 @@ class Tag(ndb.Model):
     name = ndb.StringProperty()
 
 class AudioMetadata(ndb.Model):
-    pass
+    duration = ndb.FloatProperty()
 
 class VideoMetadata(ndb.Model):
-    pass
+    duration = ndb.FloatProperty()
 
 class ImageMetadata(ndb.Model):
     height = ndb.IntegerProperty()
@@ -20,6 +20,7 @@ class FileModel(ndb.Model):
     name = ndb.StringProperty()
     file_type = ndb.StringProperty()
     blob_key = ndb.BlobKeyProperty()
+    extension = ndb.StringProperty()
     image_metadata = ndb.StructuredProperty(ImageMetadata)
     audio_metadata = ndb.StructuredProperty(AudioMetadata)
     video_metadata = ndb.StructuredProperty(VideoMetadata)

@@ -71,10 +71,11 @@ class FileHandler(webapp2.RequestHandler):
     def post(self):
         data = json.loads(self.request.body)
         
-        name = data["name"]
+        name = data["filename"]
         file_type = data["file_type"]
         metadata = data["metadata"]
         blob_key = data["blob_key"]
+        extension = data["extension"]
 
         if name is None or file_type is None or blob_key is None:
             self.error(400)
@@ -82,7 +83,8 @@ class FileHandler(webapp2.RequestHandler):
 
         fileModel = FileModel(name = name,
             file_type = file_type,
-            blob_key = BlobKey(blob_key))
+            blob_key = BlobKey(blob_key),
+            extension = extension)
 
         if file_type == "image":
             fileModel.image_metadata = get_metadata(metadata, ImageMetadata)
@@ -111,7 +113,9 @@ def get_metadata(obj, metadata):
 
             if isinstance(attribute, ndb.IntegerProperty):
                 obj_value = int(obj_value)
-
+            elif isinstance(attribute, ndb.FloatProperty):
+                obj_value = float(obj_value)
+        
             setattr(value, attribute._name, obj_value)
     
     return value

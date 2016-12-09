@@ -16,8 +16,8 @@
 }
 
 .item.is-visible {
-    -webkit-animation: Items 600ms ease-in forwards;
-            animation: Items 600ms ease-in forwards;
+    -webkit-animation: Items 500ms ease-in forwards;
+            animation: Items 500ms ease-in forwards;
 }
 
 @-webkit-keyframes Items {
@@ -27,8 +27,8 @@
             transform: scale(0.3) rotateY(90deg);
   }
   60% {
-    -webkit-transform: scale(1.4);
-            transform: scale(1.4);
+    -webkit-transform: scale(1.2);
+            transform: scale(1.2);
   }
   90% {
     -webkit-transform: scale(0.9);
@@ -46,8 +46,8 @@
             transform: scale(0.3) rotateY(90deg);
   }
   60% {
-    -webkit-transform: scale(1.4);
-            transform: scale(1.4);
+    -webkit-transform: scale(1.2);
+            transform: scale(1.2);
   }
   90% {
     -webkit-transform: scale(0.9);

@@ -1,30 +1,55 @@
-$(function () {
-    addImage = function (data) {
-        $(".grid").append("<img class='item col-md-3 col-sm-6 col-xs-12' src='/download/" + data.blob_key + "'>");
+$(function() {
+    var fileApi = new FileApi();
+
+    addImage = function(data) {
+        var image = document.createElement("img");
+        image.src = "/download/" + data.blob_key;
+        image.className = "item col-md-3 col-sm-6 col-xs-12";
+
+        $(".grid").append(image);
     }
 
-    showImages = function () {
-        $(".item").each(function (index) {
-            setTimeout(function () {
-                $(".item:nth-child(" + index + ")").addClass("is-visible");
+    addAudio = function(data) {
+        var audio = document.createElement("audio");
+        audio.src = "/download/" + data.blob_key;
+        audio.controls = true;
+        audio.className = "item col-md-3 col-sm-6 col-xs-12";
+
+        $(".grid").append(audio);
+    }
+
+    addVideo = function(data) {
+        var video = document.createElement("video");
+        video.src = "/download/" + data.blob_key;
+        video.controls = true;
+        video.className = "item col-md-3 col-sm-6 col-xs-12";
+
+        $(".grid").append(video);
+    }
+
+    showElements = function() {
+        $(".item").each(function(index) {
+            setTimeout(function() {
+                $(".item:nth-child(" + (index + 1) + ")").addClass("is-visible");
             }, 200 * index);
         });
     }
 
-    listItems = function () {
-        var url = window.location.protocol + "//" + window.location.host + "/files";
-        $.ajax({
-            url: url,
-            type: "GET",
-            dataType: "json",
-            contentType: "application/json",
-            success: function (data) {
-                $.each(data, function () {
-                    addImage(this);
-                });
-
-                showImages();
+    listItems = function() {
+        fileApi.getFiles(function(data) {
+            for (var i = 0; i < data.images.length; i++) {
+                addImage(data.images[i]);
             }
+
+            for (var i = 0; i < data.audios.length; i++) {
+                addAudio(data.audios[i]);
+            }
+
+            for (var i = 0; i < data.videos.length; i++) {
+                addVideo(data.videos[i]);
+            }
+
+            showElements();
         });
     }
 

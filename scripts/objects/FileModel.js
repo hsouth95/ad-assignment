@@ -7,14 +7,14 @@ var FileModel = function (options) {
     this.fileObject = null;
 }
 
-FileModel.prototype.setData = function (callback) {
+FileModel.prototype.setData = function (url, callback) {
     if (this.file && this.fileObject) {
         this.data.name = this.file.name;
         this.data.extension = this.file.name.split(".").slice(-1)[0];
 
         switch (this.data.file_type) {
             case "image":
-                this.setImageData(callback);
+                this.setImageData(url, callback);
                 break;
             case "audio":
                 this.setAudioData(callback);
@@ -26,11 +26,19 @@ FileModel.prototype.setData = function (callback) {
     }
 }
 
-FileModel.prototype.setImageData = function (callback) {
-    this.data.metadata.height = this.fileObject.height;
-    this.data.metadata.width = this.fileObject.width;
+FileModel.prototype.setImageData = function (url, callback) {
+    var that = this;
 
-    callback();
+    this.fileObject.addEventListener("load", function () {
+        that.data.metadata.height = that.fileObject.height;
+        that.data.metadata.width = that.fileObject.width;
+
+        if (callback && typeof callback === "function") {
+            callback();
+        }
+    });
+
+    this.fileObject.src = url;
 }
 
 FileModel.prototype.setAudioData = function (callback) {
@@ -39,17 +47,21 @@ FileModel.prototype.setAudioData = function (callback) {
     this.fileObject.addEventListener("loadedmetadata", function () {
         that.data.metadata.duration = that.fileObject.duration;
 
-        callback();
+        if (callback && typeof callback === "function") {
+            callback();
+        }
     });
 }
 
-FileModel.prototype.setVideoData = function () {
+FileModel.prototype.setVideoData = function (callback) {
     var that = this;
 
     this.fileObject.addEventListener("loadedmetadata", function () {
         that.data.metadata.duration = that.fileObject.duration;
 
-        callback();
+        if (callback && typeof callback === "function") {
+            callback();
+        }
     });
 }
 
@@ -73,6 +85,7 @@ FileModel.prototype.setFileType = function (callback, errorCallback) {
 
         if (!this.data) {
             this.data = {};
+            this.data.metadata = {};
         }
 
         this.data.file_type = file_type;
@@ -92,27 +105,14 @@ FileModel.prototype.parseFile = function (file, callback, errorCallback) {
         this.setFileType();
     }
 
-    this.fileObject = document.createElement(this.data.file_type);
+    var objectUrl = URL.createObjectURL(file);
 
-    if (this.data.file_type === "image" && FileReader) {
-        var fr = new FileReader(),
-            that = this;
-        fr.onload = function () {
-            switch (that.data.file_type) {
-                case "image":
-                    that.fileObject.src = fr.result;
-                    that.setData();
-                    break;
-                default:
-                    errorCallback("Wrong data format");
-            }
-
-            callback(fr.result);
-        }
-        fr.readAsDataURL(this.file);
+    if (this.data.file_type === "image") {
+        this.fileObject = document.createElement("img");
+        this.setData(objectUrl, callback);
     } else {
-        var objectUrl = URL.createObjectURL(file);
+        this.fileObject = document.createElement(this.data.file_type);
         this.fileObject.src = objectUrl;
-        this.setData(callback);
+        this.setData(null, callback);
     }
 }

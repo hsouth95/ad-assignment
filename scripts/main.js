@@ -51,13 +51,9 @@ $(function () {
      * @param {string} imageUrl - The url of the image to be displayed
      */
     appendImage = function () {
-        $(".drag-n-drop-content").html(uploadedImage);
+        $(".drag-n-drop-content").html(uploadingFile.fileObject);
         $(".drag-n-drop-overlay").removeClass("pointer");
         $("#submit").removeAttr("disabled");
-
-        addField("file_type", "File Type", "text", "image");
-        addField("metadata-height", "Height", "number", uploadingFile.fileObject.height);
-        addField("metadata-width", "Width", "number", uploadingFile.fileObject.width);
     }
 
     appendAudio = function (audioUrl) {
@@ -76,9 +72,22 @@ $(function () {
 
 
     populateInformation = function () {
+        addField("filename", "File Name", "text", uploadingFile.data.name);
+
         for (var attribute in uploadingFile.data) {
-            if (uploadingFile.data.hasOwnProperty(attribute)) {
+            if (uploadingFile.data.hasOwnProperty(attribute) &&
+                attribute !== "name" &&
+                attribute !== "metadata") {
                 addField(attribute, attribute, "text", uploadingFile.data[attribute]);
+            }
+        }
+
+        for (var metaAttribute in uploadingFile.data.metadata) {
+            if (uploadingFile.data.metadata.hasOwnProperty(metaAttribute)) {
+                addField("metadata-" + metaAttribute,
+                    metaAttribute,
+                    "text",
+                    uploadingFile.data.metadata[metaAttribute]);
             }
         }
     }
@@ -132,8 +141,8 @@ $(function () {
      * @param {boolean} success - Indicates if we're resetting because of a successful upload
      */
     resetForm = function (success) {
-        $("input[type=text],input[type=number]").not("#filename").remove();
-        $("label[for!='filename']").remove();
+        $("input[type=text],input[type=number]").remove();
+        $("label").remove();
         $("#file-form")[0].reset();
         $("#submit").attr("disabled", "true");
 
