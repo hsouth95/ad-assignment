@@ -26,6 +26,9 @@ $(function () {
      */
     handleFileType = function (file) {
         uploadingFile.parseFile(file, function () {
+            $(".drag-n-drop-overlay").removeClass("pointer");
+            $("#submit").removeAttr("disabled");
+
             switch (uploadingFile.data.file_type) {
                 case "image":
                     appendImage();
@@ -52,33 +55,30 @@ $(function () {
      */
     appendImage = function () {
         $(".drag-n-drop-content").html(uploadedImage);
-        $(".drag-n-drop-overlay").removeClass("pointer");
-        $("#submit").removeAttr("disabled");
-
-        addField("file_type", "File Type", "text", "image");
-        addField("metadata-height", "Height", "number", uploadingFile.fileObject.height);
-        addField("metadata-width", "Width", "number", uploadingFile.fileObject.width);
     }
 
     appendAudio = function (audioUrl) {
         uploadingFile.fileObject.controls = true;
         $(".drag-n-drop-content").html(uploadingFile.fileObject);
-        $(".drag-n-drop-overlay").removeClass("pointer");
-        $("#submit").removeAttr("disabled");
     }
 
     appendVideo = function (vidoeUrl) {
         uploadingFile.fileObject.controls = true;
         $(".drag-n-drop-content").html(uploadingFile.fileObject);
-        $(".drag-n-drop-overlay").removeClass("pointer");
-        $("#submit").removeAttr("disabled");
     }
 
 
     populateInformation = function () {
         for (var attribute in uploadingFile.data) {
-            if (uploadingFile.data.hasOwnProperty(attribute)) {
+            if (uploadingFile.data.hasOwnProperty(attribute) &&
+                attribute !== "metadata") {
                 addField(attribute, attribute, "text", uploadingFile.data[attribute]);
+            }
+        }
+
+        for (var metaAttribute in uploadingFile.data.metadata) {
+            if(uploadingFile.data.metadata.hasOwnProperty(metaAttribute)){
+                addField("metadata-" + metaAttribute, metaAttribute, "text", uploadingFile.data.metadata[metaAttribute]);
             }
         }
     }

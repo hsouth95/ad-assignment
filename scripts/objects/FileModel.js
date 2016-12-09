@@ -73,6 +73,7 @@ FileModel.prototype.setFileType = function (callback, errorCallback) {
 
         if (!this.data) {
             this.data = {};
+            this.data.metadata = {};
         }
 
         this.data.file_type = file_type;
