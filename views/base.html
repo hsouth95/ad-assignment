@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+    <link href="//fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="styles/main.css" />
+    {% endblock %}
+</head>
+
+<body>
+    <header>
+        <span class="title">WS Ltd Prototype</span>
+        <div class="header-menu">
+            <a class="menu-item" href="/">Home</a>
+            <a class="menu-item" href="/viewfiles">Files</a>
+        </div>
+    </header>
+    <div id="wrapper">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

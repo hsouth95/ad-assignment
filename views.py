@@ -14,7 +14,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import blobstore_handlers
 from models import *
 
-template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
+template_env = jinja2.Environment(loader=jinja2.FileSystemLoader("views"))
 
 class MainPage(webapp2.RequestHandler):
     def get(self):

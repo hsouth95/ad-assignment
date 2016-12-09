@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    <form action="{{ upload_url }}" id="file-form" class="row" method="post" enctype="multipart/form-data">
+        <div class="file-wrapper col-lg-8">
+            <div id="file-picker-button" class="drag-n-drop-overlay pointer">
+                <span class="drag-n-drop-content"><i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Drag or pick a file to upload.</span>
+            </div>
+        </div>
+        <div id="fieldset" class="meta-wrapper form-group col-lg-4">
+            <h2>Information</h2>
+            <label for="filename">File Name</label>
+            <input class="form-control" type="text" name="name" id="filename" placeholder="File Name" required />
+        </div>
+        <input id="file-picker" type="file" name="file" accept="image/*,video/*,audio/*" />
+        <button class="btn btn-default" id="submit" disabled="true">Upload</button>
+    </form>
+{% endblock %}
+{% block scripts %}
+    <script src="/js/main.js"></script>
+{% endblock %}
