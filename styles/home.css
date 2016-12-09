@@ -1,0 +1,31 @@
+#file-picker {
+    display: none;
+}
+
+.file-wrapper {
+    padding: 1em;
+}
+
+.drag-n-drop-overlay {
+    background-color: #FF917A;
+    height: 400px;
+    width: 100%;
+    padding-top: 10px;
+    outline: 2px dotted #a52c14;
+}
+    .drag-n-drop-overlay:hover {
+        background-color: #DD664D;
+    }
+
+.drag-n-drop-content {
+    font-size: 2em;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    overflow-x: visible;
+}
+
+.drag-n-drop-content img {
+    max-height: 300px;
+    max-width: 300px;
+}

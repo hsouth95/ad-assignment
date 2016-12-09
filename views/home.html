@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block head %}
     {{ super() }}
+    <link rel="stylesheet" href="css/home.css" />
 {% endblock %}
 {% block content %}
     <form action="{{ upload_url }}" id="file-form" class="row" method="post" enctype="multipart/form-data">
