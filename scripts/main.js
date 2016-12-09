@@ -1,4 +1,4 @@
-$(function(){
+$(function () {
     var fileSelected = false,
         loadingIcon = "<div class='spinner'><div class='double-bounce1'></div><div class='double-bounce2'></div></div>";
 
@@ -6,17 +6,17 @@ $(function(){
      * A function to handle the picking of a file
      * @param {Object} evt - The file picking event e.g. drag, pick
      */
-    pickFile = function(evt) {
-      var target = evt.dataTransfer || evt.target || window.event.srcElement,
-          files = target.files;
+    pickFile = function (evt) {
+        var target = evt.dataTransfer || evt.target || window.event.srcElement,
+            files = target.files;
 
-      setLoading();
-      $("#filename").val(files[0].name.split(".")[0]);
-      handleFileType(files[0]);
+        setLoading();
+        $("#filename").val(files[0].name.split(".")[0]);
+        handleFileType(files[0]);
     }
 
     /** Indicates to the user that something is loading */
-    setLoading = function(){
+    setLoading = function () {
         $(".drag-n-drop-content").html(loadingIcon);
     }
 
@@ -24,47 +24,47 @@ $(function(){
      * Chooses a different handler for each file type e.g. Audio, Image
      * @param {File} file - The file that is being uploaded
      */
-    handleFileType = function(file){
-      var imgRegex = /^image\//,
-          audioRegex = /^audio\//,
-          videoRegex = /^video\//;
+    handleFileType = function (file) {
+        var imgRegex = /^image\//,
+            audioRegex = /^audio\//,
+            videoRegex = /^video\//;
 
-      if(imgRegex.test(file.type)) {
-        handleImage(file);
-      } else if(audioRegex.test(file.type)) {
-        handleAudio(file);
-      } else if(videoRegex.test(file.type)) {
-        handleVideo(file);
-      } else {
-        alert("Bad file type!");
-        resetForm(false);
+        if (imgRegex.test(file.type)) {
+            handleImage(file);
+        } else if (audioRegex.test(file.type)) {
+            handleAudio(file);
+        } else if (videoRegex.test(file.type)) {
+            handleVideo(file);
+        } else {
+            alert("Bad file type!");
+            resetForm(false);
 
-        // Clear the files added to the picker
-        document.getElementById("file-picker").value = "";
-      }
+            // Clear the files added to the picker
+            document.getElementById("file-picker").value = "";
+        }
     }
 
     /**
      * Parses the image and displays to the user
      * @param {File} image - The image file to be handled
      */
-    handleImage = function(image){
-      if(FileReader && image) {
-          var fr = new FileReader();
-          fr.onload = function () {
-            appendImage(fr.result);
-          }
-          fr.readAsDataURL(image);
-      } else {
-        alert("File reading not supported!");
-      }
+    handleImage = function (image) {
+        if (FileReader && image) {
+            var fr = new FileReader();
+            fr.onload = function () {
+                appendImage(fr.result);
+            }
+            fr.readAsDataURL(image);
+        } else {
+            alert("File reading not supported!");
+        }
     }
 
     /**
      * Displays the image in the upload box
      * @param {string} imageUrl - The url of the image to be displayed
      */
-    appendImage = function(imageUrl){
+    appendImage = function (imageUrl) {
         var uploadedImage = document.createElement("img"),
             image = new Image();
 
@@ -76,19 +76,19 @@ $(function(){
         $("#submit").removeAttr("disabled");
 
         addField("file_type", "File Type", "text", "image");
-        addField("height", "Height", "number", image.height);
-        addField("width", "Width", "number", image.width);
+        addField("metadata-height", "Height", "number", image.height);
+        addField("metadata-width", "Width", "number", image.width);
     }
 
     /**
      * Utility function to cancel the default behaviour of an event
      * @param {Event} e - The event to cancel
      */
-    cancel = function(e) {
-      if (e.preventDefault) {
-          e.preventDefault();
-       }
-      return false;
+    cancel = function (e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        return false;
     }
 
     /**
@@ -98,11 +98,11 @@ $(function(){
      * @param {string} type - The type of the input field
      * @param {integer} value - The value inside the field
      */
-    addField = function(name, labelText, type, value) {
+    addField = function (name, labelText, type, value) {
         var inputElement = document.createElement("input"),
             labelElement = document.createElement("label");
 
-        if($("input[name=" + name + "]").length === 0){
+        if ($("input[name=" + name + "]").length === 0) {
             inputElement.name = name;
             inputElement.id = name;
             inputElement.type = type;
@@ -112,7 +112,7 @@ $(function(){
             labelElement.htmlFor = name;
             labelElement.innerHTML = labelText;
 
-            if(value) {
+            if (value) {
                 inputElement.value = value;
             }
 
@@ -128,7 +128,7 @@ $(function(){
      * Resets the form to allow for additional uploads
      * @param {boolean} success - Indicates if we're resetting because of a successful upload
      */
-    resetForm = function(success) {
+    resetForm = function (success) {
         $("input[type=text],input[type=number]").not("#filename").remove();
         $("label[for!='filename']").remove();
         $("#file-form")[0].reset();
@@ -136,7 +136,7 @@ $(function(){
 
         $(".drag-n-drop-overlay").addClass("pointer");
 
-        if(success) {
+        if (success) {
             $(".drag-n-drop-content").html("<i class='fa fa-upload' aria-hidden='true'></i>&nbsp;Drag or pick a file to upload.");
             setUploadUrl(true);
         } else {
@@ -148,93 +148,102 @@ $(function(){
      * Sets the upload url of the file uploader
      * @param {boolean} isSync - States if the request should be fired synchronously
      */
-    setUploadUrl = function(isSync){
+    setUploadUrl = function (isSync) {
         $.ajax({
             url: "/upload",
             type: "GET",
             async: !isSync,
-            success: function(data){
+            success: function (data) {
                 $("#file-form").attr("action", data);
             }
         })
     }
 
     /** Asynchronously uploads the file and the fields to the server */
-    submitForm = function(){
+    submitForm = function () {
         var url = $("#file-form").attr("action");
 
         // To allow for async file uploads we require FormData, IE 9 does not use this
-        if(typeof FormData !== "undefined"){
+        if (typeof FormData !== "undefined") {
             var formData = new FormData($("#file-form")[0]);
             $.ajax({
                 url: url,
                 type: "POST",
                 data: formData,
-                beforeSend: function(){
+                beforeSend: function () {
                     setLoading();
                 },
                 processData: false,
                 contentType: false,
-                success: function(data){
+                success: function (data) {
                     postFileData(data.blob_key);
                 }
             });
         }
     }
 
-    convertFormToJSON = function(form) {
-        var array = $(form).serializeArray();
-        var json = {};
+    convertFormToJSON = function (form) {
+        var array = $(form).serializeArray(),
+            json = {};
 
-        $.each(array, function(){
-            json[this.name] = this.value || "";
+        json.metadata = {};
+
+        $.each(array, function () {
+            if (this.name.substr(0, "metadata-".length) === "metadata-") {
+                var attrName = this.name.split("metadata-")[1];
+                json.metadata[attrName] = this.value;
+            } else {
+                json[this.name] = this.value || "";
+            }
         });
 
         return json;
     }
 
-    postFileData = function(blob_key) {
-        var url = window.location.protocol +  "//" + window.location.host + "/files";
+    postFileData = function (blob_key) {
+        var url = window.location.protocol + "//" + window.location.host + "/files";
 
         var json = convertFormToJSON("#file-form");
         json.blob_key = blob_key;
         $.ajax({
             url: url,
             type: "POST",
-            data: json,
-            success: function(data) {
+            data: JSON.stringify(json),
+            contentType: "application/json",
+            processData: false,
+            success: function (data) {
                 setUploadUrl(true);
                 resetForm(true);
             },
-            error: function(data) {
+            error: function (data) {
                 resetForm(false);
             }
         });
     }
 
-    $("#file-picker-button").on("click", function(){
-        if(!fileSelected){
-          $("#file-picker").trigger("click");
+    $("#file-picker-button").on("click", function () {
+        if (!fileSelected) {
+            $("#file-picker").trigger("click");
         }
     });
     $("#file-picker-button").on("dragover", cancel);
     $("#file-picker-button").on("dragenter", cancel);
-    $("#file-picker-button").on("drop", function(e){
+    $("#file-picker-button").on("drop", function (e) {
         e = e || window.event;
         if (e.preventDefault) {
             e.preventDefault();
         }
 
-         pickFile(e.originalEvent);
-         return false;
+        pickFile(e.originalEvent);
+        return false;
     });
 
-    $("#submit").on("click", function(e){
+    $("#submit").on("click", function (e) {
         e = e || window.event;
 
         // If the FormData object does not exist then we have to synchronously upload the file
         // therefore we rely on the form action
-        if(e.preventDefault && typeof FormData !== "undefined"){
+        if (e.preventDefault && typeof FormData !== "undefined") {
             e.preventDefault();
             submitForm();
         }

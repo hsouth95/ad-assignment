@@ -4,9 +4,11 @@ import webapp2
 import urllib, urllib2
 import json
 import datetime, time
+import logging, pprint
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
+from google.appengine.ext.blobstore import BlobKey
 from google.appengine.api import modules
 from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import blobstore_handlers
@@ -70,20 +72,53 @@ class FileHandler(webapp2.RequestHandler):
         self.response.write(json.dumps(serialized_files))
 
     def post(self):
-        name = self.request.get("name")
-        file_type = self.request.get("file_type")
-        metadata = self.request.get("metadata")
+        data = json.loads(self.request.body)
+        
+        name = data["name"]
+        file_type = data["file_type"]
+        metadata = data["metadata"]
+        blob_key = data["blob_key"]
 
-        if (name is None) or (file_type is None):
+        if name is None or file_type is None or blob_key is None:
             self.error(400)
             return
-        
+
         fileModel = FileModel(name = name,
             file_type = file_type,
-            metadata = metadata)
+            blob_key = BlobKey(blob_key))
+
+        if file_type == "image":
+            fileModel.image_metadata = get_metadata(metadata, ImageMetadata)
+        elif file_type == "audio":
+            fileModel.audio_metadata = get_metadata(metadata, AudioMetadata)
+        elif file_type == "video":
+            fileModel.video_metadata = get_metadata(metadata, VideoMetadata)
+        else:
+            self.error(400)
+            return
 
         fileModel.put()
 
+def get_metadata(obj, metadata):
+    if isinstance(obj, dict) == False:
+        return None
+
+    attributes = metadata._properties
+    value = metadata()
+
+    for attribute in attributes.itervalues():
+        if attribute._required and obj.has_key(attribute._name) == False:
+            raise ValueError("%s was required but was present".format(attribute._name))
+        elif obj.has_key(attribute._name):
+            obj_value = obj[attribute._name]
+
+            if isinstance(attribute, ndb.IntegerProperty):
+                obj_value = int(obj_value)
+
+            setattr(value, attribute._name, obj_value)
+    
+    return value
+    
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, file_key):
         if not blobstore.get(file_key):

@@ -1,11 +1,32 @@
-displayImage = function(data){
-    $("#files").append("<div class='col-lg-4 col-sm-6'><div class='media-item'><img src='/download/" + data.blob_key + "'></div></div>");
-}
+$(function () {
+    addImage = function (data) {
+        $(".grid").append("<img class='item col-md-3 col-sm-6 col-xs-12' src='/download/" + data.blob_key + "'>");
+    }
 
-function listItems(){
-    gapi.client.metaapi.file.list().execute(function(resp){
-        $.each(resp.items, function(){
-            displayImage(this);
-        })
-    });
-}
+    showImages = function () {
+        $(".item").each(function (index) {
+            setTimeout(function () {
+                $(".item:nth-child(" + index + ")").addClass("is-visible");
+            }, 200 * index);
+        });
+    }
+
+    listItems = function () {
+        var url = window.location.protocol + "//" + window.location.host + "/files";
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            success: function (data) {
+                $.each(data, function () {
+                    addImage(this);
+                });
+
+                showImages();
+            }
+        });
+    }
+
+    listItems();
+});

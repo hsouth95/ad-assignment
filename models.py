@@ -1,15 +1,18 @@
 import datetime, time
 
 from google.appengine.ext import ndb
+from google.appengine.ext.ndb import polymodel
 
 class Tag(ndb.Model):
     name = ndb.StringProperty()
 
+class AudioMetadata(ndb.Model):
+    pass
 
-class Metadata(ndb.Model):
+class VideoMetadata(ndb.Model):
+    pass
 
-
-class ImageMetadata(Metadata):
+class ImageMetadata(ndb.Model):
     height = ndb.IntegerProperty()
     width = ndb.IntegerProperty()
 
@@ -17,7 +20,9 @@ class FileModel(ndb.Model):
     name = ndb.StringProperty()
     file_type = ndb.StringProperty()
     blob_key = ndb.BlobKeyProperty()
-    metadata = ndb.StructuredProperty(Metadata, repeated=False)
+    image_metadata = ndb.StructuredProperty(ImageMetadata)
+    audio_metadata = ndb.StructuredProperty(AudioMetadata)
+    video_metadata = ndb.StructuredProperty(VideoMetadata)
     tags = ndb.StructuredProperty(Tag, repeated=True)
     created = ndb.DateTimeProperty(auto_now_add=True)
 
