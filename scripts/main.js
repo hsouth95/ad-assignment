@@ -1,6 +1,7 @@
 $(function () {
     var fileSelected = false,
-        loadingIcon = "<div class='spinner'><div class='double-bounce1'></div><div class='double-bounce2'></div></div>";
+        loadingIcon = "<div class='spinner'><div class='double-bounce1'></div><div class='double-bounce2'></div></div>",
+        uploadingFile = new FileModel();
 
     /**
      * A function to handle the picking of a file
@@ -11,7 +12,6 @@ $(function () {
             files = target.files;
 
         setLoading();
-        $("#filename").val(files[0].name.split(".")[0]);
         handleFileType(files[0]);
     }
 
@@ -25,59 +25,62 @@ $(function () {
      * @param {File} file - The file that is being uploaded
      */
     handleFileType = function (file) {
-        var imgRegex = /^image\//,
-            audioRegex = /^audio\//,
-            videoRegex = /^video\//;
-
-        if (imgRegex.test(file.type)) {
-            handleImage(file);
-        } else if (audioRegex.test(file.type)) {
-            handleAudio(file);
-        } else if (videoRegex.test(file.type)) {
-            handleVideo(file);
-        } else {
-            alert("Bad file type!");
-            resetForm(false);
-
-            // Clear the files added to the picker
-            document.getElementById("file-picker").value = "";
-        }
-    }
-
-    /**
-     * Parses the image and displays to the user
-     * @param {File} image - The image file to be handled
-     */
-    handleImage = function (image) {
-        if (FileReader && image) {
-            var fr = new FileReader();
-            fr.onload = function () {
-                appendImage(fr.result);
+        uploadingFile.parseFile(file, function () {
+            switch (uploadingFile.data.file_type) {
+                case "image":
+                    appendImage();
+                    break;
+                case "audio":
+                    appendAudio();
+                    break;
+                case "video":
+                    appendVideo();
+                    break;
             }
-            fr.readAsDataURL(image);
-        } else {
-            alert("File reading not supported!");
-        }
+
+            populateInformation();
+        },
+            function (message) {
+                alert(message);
+                resetForm(false);
+            });
     }
 
     /**
      * Displays the image in the upload box
      * @param {string} imageUrl - The url of the image to be displayed
      */
-    appendImage = function (imageUrl) {
-        var uploadedImage = document.createElement("img"),
-            image = new Image();
-
-        image.src = imageUrl;
-        uploadedImage.src = imageUrl;
-
+    appendImage = function () {
         $(".drag-n-drop-content").html(uploadedImage);
         $(".drag-n-drop-overlay").removeClass("pointer");
         $("#submit").removeAttr("disabled");
 
         addField("file_type", "File Type", "text", "image");
-        addField("metadata-height", "Height", "number", image.height);
-        addField("metadata-width", "Width", "number", image.width);
+        addField("metadata-height", "Height", "number", uploadingFile.fileObject.height);
+        addField("metadata-width", "Width", "number", uploadingFile.fileObject.width);
+    }
+
+    appendAudio = function (audioUrl) {
+        uploadingFile.fileObject.controls = true;
+        $(".drag-n-drop-content").html(uploadingFile.fileObject);
+        $(".drag-n-drop-overlay").removeClass("pointer");
+        $("#submit").removeAttr("disabled");
+    }
+
+    appendVideo = function (vidoeUrl) {
+        uploadingFile.fileObject.controls = true;
+        $(".drag-n-drop-content").html(uploadingFile.fileObject);
+        $(".drag-n-drop-overlay").removeClass("pointer");
+        $("#submit").removeAttr("disabled");
+    }
+
+
+    populateInformation = function () {
+        for (var attribute in uploadingFile.data) {
+            if (uploadingFile.data.hasOwnProperty(attribute)) {
+                addField(attribute, attribute, "text", uploadingFile.data[attribute]);
+            }
+        }
     }
 
     /**
