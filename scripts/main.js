@@ -26,6 +26,9 @@ $(function () {
      */
     handleFileType = function (file) {
         uploadingFile.parseFile(file, function () {
+            $(".drag-n-drop-overlay").removeClass("pointer");
+            $("#submit").removeAttr("disabled");
+
             switch (uploadingFile.data.file_type) {
                 case "image":
                     appendImage();
@@ -59,15 +62,11 @@ $(function () {
     appendAudio = function (audioUrl) {
         uploadingFile.fileObject.controls = true;
         $(".drag-n-drop-content").html(uploadingFile.fileObject);
-        $(".drag-n-drop-overlay").removeClass("pointer");
-        $("#submit").removeAttr("disabled");
     }
 
     appendVideo = function (vidoeUrl) {
         uploadingFile.fileObject.controls = true;
         $(".drag-n-drop-content").html(uploadingFile.fileObject);
-        $(".drag-n-drop-overlay").removeClass("pointer");
-        $("#submit").removeAttr("disabled");
     }
 
 
