@@ -2,11 +2,20 @@ $(function() {
     var fileApi = new FileApi();
 
     addImage = function(data) {
+        var container = document.createElement("div");
+        container.className = "item col-md-3 col-sm-6 col-xs-12";
+
         var image = document.createElement("img");
         image.src = "/download/" + data.blob_key;
-        image.className = "item col-md-3 col-sm-6 col-xs-12";
 
-        $(".grid").append(image);
+        var information = document.createElement("div");
+        information.innerHTML = "File Name";
+        information.className = "file-info";
+
+        container.appendChild(information);
+        container.appendChild(image);
+
+        $(".grid").append(container);
     }
 
     addAudio = function(data) {
