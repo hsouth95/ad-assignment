@@ -1,16 +1,12 @@
 import jinja2
 import os
 import webapp2
-import urllib, urllib2
 import json
 import datetime, time
-import logging, pprint
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
 from google.appengine.ext.blobstore import BlobKey
-from google.appengine.api import modules
-from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import blobstore_handlers
 from models import *
 
@@ -34,21 +30,6 @@ class FilePage(webapp2.RequestHandler):
         }
         self.response.out.write(template.render(context))
 
-class FileSend(webapp2.RequestHandler):
-    def post(self):
-        value = self.request.get("file")
-        url = "http://localhost:8080/test"
-        form_data = {
-            'file': str(value)
-        }
-        headers = { 'Content-Type': 'multipart/form-data'}
-        result = urlfetch.fetch(
-            url=url,
-            payload=form_data,
-            method=urlfetch.POST,
-            headers=headers)
-        self.response.write(result.content)
-
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
@@ -62,6 +43,20 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
             'blob_key': value_key
         }
         self.response.out.write(json.dumps(response))
+
+class ReplaceHandler(blobstore_handlers.BlobstoreUploadHandler):
+    def post(self):
+        upload = self.get_uploads()[0]
+        value_key = str(upload.key())
+        
+        old_blob_key = self.request.get("blob_key")
+        
+        
+        self.response.headers['Content-Type'] = 'application/json'
+        response = {
+            'blob_key': value_key
+        }
+
 
 class FileHandler(webapp2.RequestHandler):
     def get(self):

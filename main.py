@@ -5,6 +5,5 @@ from views import *
 app = webapp2.WSGIApplication([('/', MainPage),
                             ('/upload', UploadHandler),
                             ('/download/([^/]+)?', DownloadHandler),
-                            ('/edit', FileSend),
                             ('/viewfiles', FilePage),
                             ('/files', FileHandler)], debug=True)
