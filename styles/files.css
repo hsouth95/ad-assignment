@@ -28,7 +28,8 @@
 
 .item > img,
 .item > audio,
-.item > video {
+.item > video,
+.item > canvas {
     background: #CCC;
     border-radius: 4px;
     width: 100%;
@@ -79,11 +80,6 @@
     padding-left: 10px;
     border-bottom: 1px solid #A52C14;
 }
- 
-.edit-modal-body {
-
-}
-
 .edit-modal-footer {
   background-color: #FF917A;
 }
@@ -94,7 +90,8 @@
 
 .media-block img,
 .media-block audio,
-.media-block video {
+.media-block video,
+.media-block canvas {
     width: 100%;
     border: #FF917A dotted 1px;
 }

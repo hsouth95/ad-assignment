@@ -167,7 +167,7 @@ $(function () {
             success: function (data) {
                 $("#file-form").attr("action", data);
             }
-        })
+        });
     }
 
     /** Asynchronously uploads the file and the fields to the server */

@@ -8,14 +8,14 @@ var FileApi = function(e) {
 };
 
 FileApi.prototype.getFiles = function(e, i) {
-    var o = this;
+    var t = this;
     $.ajax({
         url: this.listUrl,
         type: "GET",
         dataType: "json",
         contentType: "application/json",
         success: function(i) {
-            e(o.splitData(i));
+            e(t.splitData(i));
         },
         error: function(e) {
             i(e);
@@ -24,7 +24,7 @@ FileApi.prototype.getFiles = function(e, i) {
 };
 
 FileApi.prototype.splitData = function(e) {
-    var i = [], o = [], t = [];
+    var i = [], t = [], o = [];
     for (var n = 0; n < e.length; n++) {
         switch (e[n].file_type) {
           case "image":
@@ -32,18 +32,18 @@ FileApi.prototype.splitData = function(e) {
             break;
 
           case "audio":
-            o.push(new AudioObject(e[n]));
+            t.push(new AudioObject(e[n]));
             break;
 
           case "video":
-            t.push(new VideoObject(e[n]));
+            o.push(new VideoObject(e[n]));
             break;
         }
     }
     return {
         images: i,
-        audios: o,
-        videos: t
+        audios: t,
+        videos: o
     };
 };
 
@@ -51,14 +51,17 @@ var AudioObject = function(e) {
     this.id = e.id;
     this.blob_key = e.blob_key;
     this.name = e.name;
+    this.extension = e.extension;
 };
 
 var ImageObject = function(e) {
     this.blob_key = e.blob_key;
     this.name = e.name;
+    this.extension = e.extension;
 };
 
 var VideoObject = function(e) {
     this.blob_key = e.blob_key;
     this.name = e.name;
+    this.extension = e.extension;
 };
