@@ -5,7 +5,7 @@ import json
 import datetime, time
 import logging
 import StringIO
-from PIL import Image
+from PIL import Image, ImageFilter
 import cgi
 
 from google.appengine.ext import ndb
@@ -45,7 +45,7 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         
         previous_blob_key = self.request.get("blob_key")
 
-        # Are we replacing the file?
+        # Check if we are we replacing the file
         if previous_blob_key:
             previous_blob = blobstore.get(BlobKey(previous_blob_key))
             if previous_blob:
@@ -108,8 +108,13 @@ class EditImageHandler(webapp2.RequestHandler):
         tempBuff = StringIO.StringIO(apple)
 
         im = Image.open(tempBuff)
+        im2 = im.filter(ImageFilter.BLUR)
 
-        self.response.write(im.size)
+        output = StringIO.StringIO()
+        im2.save(output, "jpeg")
+        text_layer = output.getvalue()
+        self.response.headers["Content-Type"] = "image/jpeg"
+        self.response.write(text_layer)
 
 def get_metadata(obj, metadata):
     if isinstance(obj, dict) == False:
