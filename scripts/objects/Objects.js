@@ -48,13 +48,17 @@ FileApi.prototype.splitData = function(e) {
 };
 
 var AudioObject = function(e) {
+    this.id = e.id;
     this.blob_key = e.blob_key;
+    this.name = e.name;
 };
 
 var ImageObject = function(e) {
     this.blob_key = e.blob_key;
+    this.name = e.name;
 };
 
 var VideoObject = function(e) {
     this.blob_key = e.blob_key;
+    this.name = e.name;
 };

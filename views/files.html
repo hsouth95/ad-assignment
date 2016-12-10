@@ -4,11 +4,35 @@
     <link type="text/css" rel="stylesheet" href="/css/files.css">
 {% endblock %}
 {% block content %}
-    <div class="grid row"></div>
+    <div class="row">
+        <div class="sidebar col-lg-2 col-sm-12">
+            <h1>Filter</h1>
+        </div>
+        <div class="grid col-lg-10 col-sm-12 row">
+        </div>
+    </div>
+    <div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="edit-modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="edit-modal-title">Edit</h4>
+            </div>
+            <div class="modal-body" id="edit-modal-body">
+                <div class="row">
+                    <div class="col-md-8 col-xs-8 media-block"></div>
+                    <div class="col-md-4 col-xs-4 information-block"></div>
+                </div>
+            </div>
+            <div class="modal-footer edit-modal-footer">
+                <button type="button" class="btn btn-primary" id="edit-button-save">Save changes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 {% block scripts %}
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/masonry/4.1.1/masonry.pkgd.min.js"></script>
     <script src="/js/objects/Objects.js"></script>
     <script src="/js/files.js"></script>
 {% endblock %}
