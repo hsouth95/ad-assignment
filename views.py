@@ -4,6 +4,9 @@ import webapp2
 import json
 import datetime, time
 import logging
+import StringIO
+from PIL import Image
+import cgi
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
@@ -98,6 +101,16 @@ class FileHandler(webapp2.RequestHandler):
 
         fileModel.put()
 
+class EditImageHandler(webapp2.RequestHandler):
+    def post(self):
+        apple = self.request.POST.multi["apple"].file.read()
+
+        tempBuff = StringIO.StringIO(apple)
+
+        im = Image.open(tempBuff)
+
+        self.response.write(im.size)
+
 def get_metadata(obj, metadata):
     if isinstance(obj, dict) == False:
         return None
@@ -107,7 +120,7 @@ def get_metadata(obj, metadata):
 
     for attribute in attributes.itervalues():
         if attribute._required and obj.has_key(attribute._name) == False:
-            raise ValueError("%s was required but was present".format(attribute._name))
+            raise ValueError("%s was required but was not present".format(attribute._name))
         elif obj.has_key(attribute._name):
             obj_value = obj[attribute._name]
 
