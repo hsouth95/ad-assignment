@@ -109,9 +109,10 @@ class EditImageHandler(webapp2.RequestHandler):
 
         im = Image.open(tempBuff)
         im2 = im.filter(ImageFilter.BLUR)
+        im3 = im2.rotate(45)
 
         output = StringIO.StringIO()
-        im2.save(output, "jpeg")
+        im3.save(output, "jpeg")
         text_layer = output.getvalue()
         self.response.headers["Content-Type"] = "image/jpeg"
         self.response.write(text_layer)
