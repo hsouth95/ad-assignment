@@ -134,10 +134,9 @@ $(function() {
                                 data: data,
                                 processData: false,
                                 contentType: false,
-                                success: function(data){
-                                    alert(data.blob_key);
+                                success: function(data) {
                                 },
-                                error: function(data){
+                                error: function(data) {
                                     alert(data);
                                 }
                             })
