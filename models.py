@@ -1,7 +1,6 @@
 import datetime, time
 
 from google.appengine.ext import ndb
-from google.appengine.ext.ndb import polymodel
 
 class Tag(ndb.Model):
     name = ndb.StringProperty()

@@ -1,18 +1,16 @@
 import jinja2
-import os
 import webapp2
 import json
-import datetime, time
 import StringIO
 import secrets
 import webob.multidict
-from PIL import Image, ImageFilter, ImageDraw, ImageFont
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
 from google.appengine.ext.blobstore import BlobKey
 from google.appengine.ext.webapp import blobstore_handlers
 
+from PIL import Image, ImageFilter, ImageDraw, ImageFont
 from webapp2_extras import auth, sessions
 from models import *
 
@@ -86,7 +84,7 @@ class AuthHandler(BaseHandler, SimpleAuthHandler):
                 ok, user = self.auth.store.user_model.create_user(auth_id, **_attrs)
                 if ok:
                     self.auth.set_session(self.auth.store.user_to_dict(user))
-        
+      
         destination_url = '/'
 
         # Check if a destination was specified in the request
@@ -108,7 +106,7 @@ class AuthHandler(BaseHandler, SimpleAuthHandler):
     def _get_optional_params_for(self, provider):
         """Returns optional parameters for auth init requests."""
         return secrets.AUTH_OPTIONAL_PARAMS.get(provider)
-		
+
     def _to_user_model_attrs(self, data, attrs_map):
         """Get the needed information from the provider dataset."""
         user_attrs = {}
@@ -117,7 +115,7 @@ class AuthHandler(BaseHandler, SimpleAuthHandler):
             user_attrs.setdefault(*attr)
 
         return user_attrs
-    
+
 class MainPage(BaseHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
@@ -148,7 +146,7 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, BaseHandler):
         if self.logged_in:
             upload = self.get_uploads()[0]
             value_key = str(upload.key())
-            
+
             previous_blob_key = self.request.get("blob_key")
 
             # Check if we are we replacing the file
@@ -156,13 +154,13 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, BaseHandler):
                 previous_blob = blobstore.get(BlobKey(previous_blob_key))
                 if previous_blob:
                     previous_blob.delete()
-                
+
                 # Retrieve the datastore entity this file belongs to
                 files = FileModel.query(FileModel.blob_key == BlobKey(previous_blob_key))
                 for file in files:
                     file.blob_key = BlobKey(value_key)
                     file.put()
-            
+
             self.response.headers['Content-Type'] = 'application/json'
             response = {
                 'blob_key': value_key
@@ -188,7 +186,7 @@ class FileHandler(BaseHandler):
         if self.logged_in:
 
             data = json.loads(self.request.body)
-            
+
             name = data["filename"]
             file_type = data["file_type"]
             metadata = data["metadata"]
@@ -201,11 +199,11 @@ class FileHandler(BaseHandler):
                 self.error(400)
                 return
 
-            fileModel = FileModel(name = name,
-                file_type = file_type,
-                blob_key = BlobKey(blob_key),
-                extension = extension,
-                user = user)
+            fileModel = FileModel(name=name,
+                                  file_type=file_type,
+                                  blob_key=BlobKey(blob_key),
+                                  extension=extension,
+                                  user=user)
 
             if file_type == "image":
                 fileModel.image_metadata = get_metadata(metadata, ImageMetadata)
@@ -262,14 +260,14 @@ class WaterMarkHandler(BaseHandler):
         self.response.write(text_layer)
 
 def get_metadata(obj, metadata):
-    if isinstance(obj, dict) == False:
+    if isinstance(obj, dict) is False:
         return None
 
     attributes = metadata._properties
     value = metadata()
 
     for attribute in attributes.itervalues():
-        if attribute._required and obj.has_key(attribute._name) == False:
+        if attribute._required and obj.has_key(attribute._name) is False:
             raise ValueError("%s was required but was not present".format(attribute._name))
         elif obj.has_key(attribute._name):
             obj_value = obj[attribute._name]
@@ -278,11 +276,11 @@ def get_metadata(obj, metadata):
                 obj_value = int(obj_value)
             elif isinstance(attribute, ndb.FloatProperty):
                 obj_value = float(obj_value)
-        
+
             setattr(value, attribute._name, obj_value)
-    
+
     return value
-    
+
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, BaseHandler):
     def get(self, file_key):
         if self.logged_in:
