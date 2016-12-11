@@ -3,16 +3,16 @@ import os
 import webapp2
 import json
 import datetime, time
-import logging
 import StringIO
 from PIL import Image, ImageFilter, ImageDraw, ImageFont
-import cgi
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
 from google.appengine.ext.blobstore import BlobKey
 from google.appengine.ext.webapp import blobstore_handlers
 from models import *
+
+from simpleauth import SimpleAuthHandler
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader("views"))
 
