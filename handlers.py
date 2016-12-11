@@ -6,7 +6,6 @@ import datetime, time
 import StringIO
 import secrets
 import webob.multidict
-import logging
 from PIL import Image, ImageFilter, ImageDraw, ImageFont
 
 from google.appengine.ext import ndb
@@ -65,18 +64,10 @@ class AuthHandler(BaseHandler, SimpleAuthHandler):
     def _on_signin(self, data, auth_info, provider, extra=None):
         auth_id = '%s:%s' % (provider, data['id'])
 
-        logging.debug('Looking for a user with id %s', auth_id)
         user = self.auth.store.user_model.get_by_auth_id(auth_id)
         _attrs = self._to_user_model_attrs(data, self.USER_ATTRS[provider])
 
         if user:
-            logging.debug('Found existing user to log in')
-            # Existing users might've changed their profile data so we update our
-            # local model anyway. This might result in quite inefficient usage
-            # of the Datastore, but we do this anyway for demo purposes.
-            #
-            # In a real app you could compare _attrs with user's properties fetched
-            # from the datastore and update local user in case something's changed.
             user.populate(**_attrs)
             user.put()
             self.auth.set_session(self.auth.store.user_to_dict(user))
@@ -87,32 +78,21 @@ class AuthHandler(BaseHandler, SimpleAuthHandler):
             # otherwise add this auth_id to currently logged in user.
 
             if self.logged_in:
-                logging.debug('Updating currently logged in user')
-
                 u = self.current_user
                 u.populate(**_attrs)
-                # The following will also do u.put(). Though, in a real app
-                # you might want to check the result, which is
-                # (boolean, info) tuple where boolean == True indicates success
-                # See webapp2_extras.appengine.auth.models.User for details.
                 u.add_auth_id(auth_id)
 
             else:
-                logging.debug('Creating a brand new user')
                 ok, user = self.auth.store.user_model.create_user(auth_id, **_attrs)
                 if ok:
                     self.auth.set_session(self.auth.store.user_to_dict(user))
+        
+        destination_url = '/'
 
-        # Remember auth data during redirect, just for this demo. You wouldn't
-        # normally do this.
-        self.session.add_flash(auth_info, 'auth_info')
-        self.session.add_flash({'extra': extra}, 'extra')
-
-        # user profile page
-        destination_url = '/profile'
+        # Check if a destination was specified in the request
         if extra is not None:
             params = webob.multidict.MultiDict(extra)
-            destination_url = str(params.get('destination_url', '/profile'))
+            destination_url = str(params.get('destination_url', '/'))
         return self.redirect(destination_url)
 
     def logout(self):
@@ -159,14 +139,13 @@ class FilePage(BaseHandler):
         else:
             self.redirect("/")
 
-class UploadHandler(BaseHandler):
+class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, BaseHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
         self.response.out.write(upload_url)
 
     def post(self):
         if self.logged_in:
-
             upload = self.get_uploads()[0]
             value_key = str(upload.key())
             
@@ -195,7 +174,9 @@ class UploadHandler(BaseHandler):
 class FileHandler(BaseHandler):
     def get(self):
         if self.logged_in:
-            files = FileModel.query()
+            user_key = self.current_user.key
+
+            files = FileModel.query(FileModel.user == str(user_key.id))
             serialized_files = [x.get_json() for x in files]
 
             self.response.headers['Content-Type'] = 'application/json'
@@ -214,6 +195,8 @@ class FileHandler(BaseHandler):
             blob_key = data["blob_key"]
             extension = data["extension"]
 
+            user = str(self.current_user.key.id)
+
             if name is None or file_type is None or blob_key is None:
                 self.error(400)
                 return
@@ -221,7 +204,8 @@ class FileHandler(BaseHandler):
             fileModel = FileModel(name = name,
                 file_type = file_type,
                 blob_key = BlobKey(blob_key),
-                extension = extension)
+                extension = extension,
+                user = user)
 
             if file_type == "image":
                 fileModel.image_metadata = get_metadata(metadata, ImageMetadata)
@@ -236,33 +220,6 @@ class FileHandler(BaseHandler):
             fileModel.put()
         else:
             self.error(400)
-
-class AppleHandler(BaseHandler):
-    def get(self):
-        if self.logged_in:
-            self.response.write("in!")
-        else:
-            self.response.write("out!")
-
-class EditImageHandler(BaseHandler):
-    def post(self):
-        file = self.request.POST.multi["file"].file.read()
-        value = self.request.get("value")
-
-        tempBuff = StringIO.StringIO(apple)
-
-        im = Image.open(tempBuff)
-        draw = ImageDraw.Draw(im)
-        font = ImageFont.truetype("Promocyja096.ttf", 20, encoding="utf-8")
-        draw.text((0, 0), value, font=font)
-        
-        output = StringIO.StringIO()
-
-        im.save(output, "jpeg")
-        text_layer = output.getvalue()
-        self.response.headers["Content-Type"] = "image/jpeg"
-        self.response.write(text_layer)
-
 
 class WaterMarkHandler(BaseHandler):
     def post(self):

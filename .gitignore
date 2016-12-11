@@ -4,3 +4,4 @@ __pycache__/
 .vs
 .vscode
 secrets.py
+secrets.template.py

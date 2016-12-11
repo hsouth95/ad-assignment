@@ -19,9 +19,7 @@ app = webapp2.WSGIApplication([('/', MainPage),
                             ('/download/([^/]+)?', DownloadHandler),
                             ('/viewfiles', FilePage),
                             ('/files', FileHandler),
-                            ('/edit/image', EditImageHandler),
                             ('/watermark', WaterMarkHandler),
                             Route('/auth/<provider>', handler='handlers.AuthHandler:_simple_auth', name='auth_login'),
                             Route('/auth/<provider>/callback', handler='handlers.AuthHandler:_auth_callback', name='auth_callback'),
-                            Route('/logout', handler='handlers.AuthHandler:logout', name='logout'),
-                            ("/apple", AppleHandler)], config=app_config, debug=True)
+                            Route('/logout', handler='handlers.AuthHandler:logout', name='logout')], config=app_config, debug=True)
