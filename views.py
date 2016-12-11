@@ -5,7 +5,7 @@ import json
 import datetime, time
 import logging
 import StringIO
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageDraw, ImageFont
 import cgi
 
 from google.appengine.ext import ndb
@@ -103,18 +103,62 @@ class FileHandler(webapp2.RequestHandler):
 
 class EditImageHandler(webapp2.RequestHandler):
     def post(self):
-        apple = self.request.POST.multi["apple"].file.read()
+        file = self.request.POST.multi["file"].file.read()
+        value = self.request.get("value")
 
         tempBuff = StringIO.StringIO(apple)
 
         im = Image.open(tempBuff)
-        im2 = im.filter(ImageFilter.BLUR)
-        im3 = im2.rotate(45)
-
+        draw = ImageDraw.Draw(im)
+        font = ImageFont.truetype("Promocyja096.ttf", 20, encoding="utf-8")
+        draw.text((0, 0), value, font=font)
+        
         output = StringIO.StringIO()
-        im3.save(output, "jpeg")
+
+        im.save(output, "jpeg")
         text_layer = output.getvalue()
         self.response.headers["Content-Type"] = "image/jpeg"
+        self.response.write(text_layer)
+
+
+class WaterMarkHandler(webapp2.RequestHandler):
+    def post(self):
+        file = self.request.POST.multi["file"].file.read()
+        value = self.request.get("value")
+
+        tempBuff = StringIO.StringIO(file)
+
+        im = Image.open(tempBuff)
+
+        if im.format is not "JPEG":
+            self.error(400)
+            self.response.write("Only JPEG formats are currently supported")
+            return
+
+        # Starting font size
+        fontsize = 1  
+
+        # Portion of image width text width will be
+        img_fraction = 0.40
+
+        # Increment image size until it fills required width of picture
+        font = ImageFont.truetype("Promocyja096.ttf", fontsize)
+        while font.getsize(value)[0] < img_fraction*im.size[0]:
+            # iterate until the text size is just larger than the criteria
+            fontsize += 1
+            font = ImageFont.truetype("Promocyja096.ttf", fontsize)
+
+
+        font = ImageFont.truetype("Promocyja096.ttf", fontsize)
+        d = ImageDraw.Draw(im)
+
+        d.text((10, 10), value, fill=(255, 255, 255, 128), font=font)
+
+        output = StringIO.StringIO()
+        im.save(output, im.format)
+        text_layer = output.getvalue()
+
+        self.response.headers["Content-Type"] = "image/" + im.format.lower()
         self.response.write(text_layer)
 
 def get_metadata(obj, metadata):
