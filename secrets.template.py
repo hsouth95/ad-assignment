@@ -1,4 +1,9 @@
+# This is a session secret key used by webapp2 framework.
+SESSION_KEY = "sesh"
 
+# Google APIs
+GOOGLE_APP_ID = 'client id'
+GOOGLE_APP_SECRET = 'secret'
 
 # Facebook auth apis
 FACEBOOK_APP_ID = 'app id'
