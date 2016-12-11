@@ -1,6 +1,18 @@
-import webapp2
+from webapp2 import WSGIApplication, Route
 
-from views import *
+from secrets import SESSION_KEY
+from handlers import *
+
+# Build a config for the sessions to ensure security
+app_config = {
+  'webapp2_extras.sessions': {
+    'cookie_name': '_simpleauth_sess',
+    'secret_key': SESSION_KEY
+  },
+  'webapp2_extras.auth': {
+    'user_attributes': []
+  }
+}
 
 app = webapp2.WSGIApplication([('/', MainPage),
                             ('/upload', UploadHandler),
@@ -8,4 +20,8 @@ app = webapp2.WSGIApplication([('/', MainPage),
                             ('/viewfiles', FilePage),
                             ('/files', FileHandler),
                             ('/edit/image', EditImageHandler),
-                            ('/watermark', WaterMarkHandler)], debug=True)
+                            ('/watermark', WaterMarkHandler),
+                            Route('/auth/<provider>', handler='handlers.AuthHandler:_simple_auth', name='auth_login'),
+                            Route('/auth/<provider>/callback', handler='handlers.AuthHandler:_auth_callback', name='auth_callback'),
+                            Route('/logout', handler='handlers.AuthHandler:logout', name='logout'),
+                            ("/apple", AppleHandler)], config=app_config, debug=True)
