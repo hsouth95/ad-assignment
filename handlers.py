@@ -174,7 +174,7 @@ class FileHandler(BaseHandler):
         if self.logged_in:
             user_key = self.current_user.key
 
-            files = FileModel.query(FileModel.user == str(user_key.id))
+            files = FileModel.query(FileModel.user == str(user_key.id()))
             serialized_files = [x.get_json() for x in files]
 
             self.response.headers['Content-Type'] = 'application/json'
@@ -193,7 +193,7 @@ class FileHandler(BaseHandler):
             blob_key = data["blob_key"]
             extension = data["extension"]
 
-            user = str(self.current_user.key.id)
+            user = str(self.current_user.key.id())
 
             if name is None or file_type is None or blob_key is None:
                 self.error(400)
@@ -280,6 +280,12 @@ def get_metadata(obj, metadata):
             setattr(value, attribute._name, obj_value)
 
     return value
+
+
+class MockHandler(BaseHandler):
+    def get(self):
+        user = self.current_user
+        self.response.write(user.key.id())
 
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, BaseHandler):
     def get(self, file_key):
