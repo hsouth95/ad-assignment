@@ -1,8 +1,8 @@
-$(function() {
+$(function () {
     var fileApi = new FileApi(),
         editingFile = null;
 
-    addElement = function(data) {
+    addElement = function (data) {
         var container = document.createElement("div");
         container.className = "item col-lg-3 col-md-4 col-sm-6 col-xs-12";
 
@@ -16,7 +16,7 @@ $(function() {
         editButton.innerHTML = "<i class='fa fa-pencil'></i>";
         editButton.className = "edit-button";
 
-        editButton.addEventListener("click", function() {
+        editButton.addEventListener("click", function () {
             editingFile = data;
             openEditWindow(data);
         });
@@ -29,7 +29,7 @@ $(function() {
         $(".grid").append(container);
     }
 
-    getMediaElement = function(data) {
+    getMediaElement = function (data) {
         if (data instanceof ImageObject) {
             return getImageElement(data);
         } else if (data instanceof AudioObject) {
@@ -39,14 +39,14 @@ $(function() {
         }
     }
 
-    getImageElement = function(data) {
+    getImageElement = function (data) {
         var image = document.createElement("img");
         image.src = "/download/" + data.blob_key;
 
         return image;
     }
 
-    getAudioElement = function(data) {
+    getAudioElement = function (data) {
         var audio = document.createElement("audio");
         audio.src = "/download/" + data.blob_key;
         audio.controls = true;
@@ -54,7 +54,7 @@ $(function() {
         return audio;
     }
 
-    getVideoElement = function(data) {
+    getVideoElement = function (data) {
         var video = document.createElement("video");
         video.src = "/download/" + data.blob_key;
         video.controls = true;
@@ -62,41 +62,55 @@ $(function() {
         return video;
     }
 
-    showElements = function() {
-        $(".item").each(function(index) {
-            setTimeout(function() {
+    showElements = function () {
+        $(".item").each(function (index) {
+            setTimeout(function () {
                 $(".item:nth-child(" + (index + 1) + ")").addClass("is-visible");
             }, 200 * index);
         });
     }
 
-    openEditWindow = function(element) {
+    openEditWindow = function (element) {
         var modalContent = document.getElementById("edit-modal-body"),
             mediaBlock = document.getElementsByClassName("media-block")[0],
-            informationBlock = document.getElementsByClassName("information-block")[0];
+            informationBlock = document.getElementById("edit-information"),
+            editActionsBlock = document.getElementById("edit-actions");
 
         var media = getMediaElement(element);
         media.id = "edit-media";
         mediaBlock.appendChild(media);
 
+        var attributes = element.getDisplayableAttributes();
+
+        for (attribute in attributes) {
+            if (attributes.hasOwnProperty(attribute)) {
+                var extension = document.createElement("h1");
+                extension.innerHTML = attribute + ": " + attributes[attribute];
+
+                informationBlock.appendChild(extension);
+            }
+        }
+
         $("#edit-modal").modal({ show: true });
     }
 
-    clearEditWindow = function() {
+    clearEditWindow = function () {
         var mediaBlock = document.getElementsByClassName("media-block")[0],
-            informationBlock = document.getElementsByClassName("information-block")[0];
+            informationBlock = document.getElementById("edit-information"),
+            editActionsBlock = document.getElementById("edit-actions");
 
         mediaBlock.innerHTML = "";
         informationBlock.innerHTML = "";
+        editActionsBlock.innerHTML = "";
 
         editingFile = null;
     }
 
-    listItems = function() {
-        fileApi.getFiles(function(data) {
+    listItems = function () {
+        fileApi.getFiles(function (data) {
             var elements = Array.prototype.concat(data.images, data.audios, data.videos);
 
-            $.each(elements, function() {
+            $.each(elements, function () {
                 addElement(this);
             });
 
@@ -104,11 +118,11 @@ $(function() {
         });
     }
 
-    getUploadUrl = function(callback) {
+    getUploadUrl = function (callback) {
         $.ajax({
             url: "/upload",
             type: "GET",
-            success: function(data) {
+            success: function (data) {
                 callback(data);
             }
         });
@@ -116,27 +130,27 @@ $(function() {
 
     $("#edit-modal").on("hidden.bs.modal", clearEditWindow);
 
-    $("#edit-button-save").on("click", function() {
-        Caman("#edit-media", function() {
+    $("#edit-button-save").on("click", function () {
+        Caman("#edit-media", function () {
             this.contrast(10);
-            this.render(function() {
+            this.render(function () {
                 var image = this.toBase64();
                 urlToFile(image, editingFile.name, "image/" + editingFile.extension)
-                    .then(function(file) {
+                    .then(function (file) {
                         var data = new FormData();
                         data.append("file", file);
                         data.append("blob_key", editingFile.blob_key);
 
-                        getUploadUrl(function(url) {
+                        getUploadUrl(function (url) {
                             $.ajax({
                                 url: url,
                                 type: "POST",
                                 data: data,
                                 processData: false,
                                 contentType: false,
-                                success: function(data) {
+                                success: function (data) {
                                 },
-                                error: function(data) {
+                                error: function (data) {
                                     alert(data);
                                 }
                             })
@@ -146,10 +160,10 @@ $(function() {
         });
     });
 
-    urlToFile = function(url, filename, mimeType) {
+    urlToFile = function (url, filename, mimeType) {
         return (fetch(url)
-            .then(function(res) { return res.arrayBuffer(); })
-            .then(function(buf) { return new File([buf], filename, { type: mimeType }); })
+            .then(function (res) { return res.arrayBuffer(); })
+            .then(function (buf) { return new File([buf], filename, { type: mimeType }); })
         );
     }
 
