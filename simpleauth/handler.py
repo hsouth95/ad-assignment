@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import logging
@@ -7,7 +6,7 @@ import json
 from urllib import urlencode
 import urlparse
 
-# for CSRF state tokens
+# for CSRF state tokens
 import time
 import base64
 
