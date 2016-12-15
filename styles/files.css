@@ -98,12 +98,6 @@
     width: 100%;
     border: #FF917A dotted 1px;
 }
-
-.information-block {
-
-}
-
-
 @-webkit-keyframes Items {
   0% {
     opacity: 0;

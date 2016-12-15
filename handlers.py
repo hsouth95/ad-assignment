@@ -3,6 +3,7 @@ import webapp2
 import json
 import StringIO
 import secrets
+import logging
 import webob.multidict
 
 from google.appengine.ext import ndb
@@ -16,9 +17,30 @@ from models import *
 
 from simpleauth import SimpleAuthHandler
 
+LOGOUT_URL = "/logout"
+
+
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader("views"))
 
 class BaseHandler(webapp2.RequestHandler):
+    USER_ATTRS = {
+        'googleplus': {
+            'provider': 'google',
+            'friendly_name': 'Google',
+            'image': lambda img: ('avatar_url', img.get('url', "value")),
+            'displayName': 'name',
+            'url': 'link'
+        },
+        'linkedin2': {
+            'provider': 'linkedin',
+            'friendly_name': 'LinkedIn',
+            'picture-url': 'avatar_url',
+            'first-name': 'name',
+            'public-profile-url': 'link'
+        }
+    }
+
+
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
@@ -49,16 +71,20 @@ class BaseHandler(webapp2.RequestHandler):
     def logged_in(self):
         """Returns true if a user is currently logged in, false otherwise"""
         return self.auth.get_user_by_session() is not None
+    
+    @webapp2.cached_property
+    def get_logins(self):
+        # Get all logins we can use
+        logins = []
+        for key, value in self.USER_ATTRS.iteritems():
+            logins.append({
+                'name': key,
+                'provider': value['provider'],
+                'friendly_name': value['friendly_name']
+            })
+        return logins
 
 class AuthHandler(BaseHandler, SimpleAuthHandler):
-    USER_ATTRS = {
-        'googleplus': {
-            'image': lambda img: ('avatar_url', img.get('url', "value")),
-            'displayName': 'name',
-            'url': 'link'
-        }
-    }
-
     def _on_signin(self, data, auth_info, provider, extra=None):
         auth_id = '%s:%s' % (provider, data['id'])
 
@@ -121,31 +147,33 @@ class MainPage(BaseHandler):
         upload_url = blobstore.create_upload_url('/upload')
         template = template_env.get_template('home.html')
 
-        logged_in = self.logged_in
-        login_url = "/auth/googleplus"
-        logout_url = "/logout"
-        
-        if logged_in:
+        user = None
+        logins = self.get_logins
+
+        if self.logged_in:
             user = self.current_user
-        else:
-            user = None
-        
+
         context = {
             'upload_url': upload_url,
             'title': "WS Ltd Prototype",
-            'login_url': login_url,
-            'logout_url': logout_url,
-            'logged_in': logged_in,
-            'user': user 
+            'logout_url': LOGOUT_URL,
+            'user': user,
+            'logins': logins
         }
+
         self.response.out.write(template.render(context))
 
 class FilePage(BaseHandler):
     def get(self):
         if self.logged_in:
+            logout_url = "/logout"
+            user = self.current_user
+
             template = template_env.get_template('files.html')
             context = {
-                'title': 'WS Ltd Prototype'
+                'title': 'WS Ltd Prototype',
+                'logout_url': LOGOUT_URL,
+                'user': user
             }
             self.response.out.write(template.render(context))
         else:

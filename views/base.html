@@ -8,6 +8,7 @@
     <link href="//fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
     <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.min.css">
     <link type="text/css" rel="stylesheet" href="/css/main.min.css">
     {% endblock %}
 </head>
@@ -19,11 +20,15 @@
             <a class="menu-item" href="/viewfiles">Files</a>
         </div>
         <div class="login-box">
-            {% if logged_in %}
-                <img src="{{ user.avatar_url }}">
-             <a class="btn" href="{{ logout_url }}">Log out</a>
+            {% if user %}
+                <a href="{{ user.link }}"><img class="login-image" src="{{ user.avatar_url }}"></a>
+                <button class="btn btn-success">
+                    <a href="{{ logout_url }}">Log out</a>
+                </button>
              {% else %}
-             <a class="btn" href="{{ login_url }}">Log in</a>
+                <button class="btn btn-primary" id="login-button">
+                    Log in
+                </button>
              {% endif %}
         </div>
     </header>
@@ -31,8 +36,26 @@
         {% block content %}{% endblock %}
     </div>
 
+    <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="login-modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="login-modal-title">Login</h4>
+            </div>
+            <div class="modal-body" id="login-modal-body">
+                <h1>Sign in with...</h1>
+                <hr />
+                {% for login in logins %}
+                    <a class="btn btn-block btn-social btn-{{ login.provider }}" href="/auth/{{ login.name }}"><span class="fa fa-{{ login.provider }}"></span>{{ login.friendly_name }}</a>
+                {% endfor %}
+            </div>
+            </div>
+        </div>
+    </div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/js/header.js"></script>
     {% block scripts %}{% endblock %}
 </body>
 
