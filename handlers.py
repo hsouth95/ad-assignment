@@ -120,9 +120,17 @@ class MainPage(BaseHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
         template = template_env.get_template('home.html')
+
+        logged_in = self.logged_in
+        login_url = "/auth/googleplus"
+        logout_url = "/logout"
+
         context = {
             'upload_url': upload_url,
-            'title': "WS Ltd Prototype"
+            'title': "WS Ltd Prototype",
+            'login_url': login_url,
+            'logout_url': logout_url,
+            'logged_in': logged_in 
         }
         self.response.out.write(template.render(context))
 

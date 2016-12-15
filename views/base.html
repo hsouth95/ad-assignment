@@ -11,13 +11,19 @@
     <link type="text/css" rel="stylesheet" href="/css/main.min.css">
     {% endblock %}
 </head>
-
 <body>
     <header>
         <span class="title">WS Ltd Prototype</span>
         <div class="header-menu">
             <a class="menu-item" href="/">Home</a>
             <a class="menu-item" href="/viewfiles">Files</a>
+        </div>
+        <div class="login-box">
+            {% if logged_in %}
+             <a class="btn" href="{{ logout_url }}">Log out</span>
+             {% else %}
+             <a class="btn" href="{{ login_url }}">Log in</button>
+             {% endif %}
         </div>
     </header>
     <div id="wrapper">
