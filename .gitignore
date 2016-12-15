@@ -3,3 +3,5 @@ __pycache__/
 /lib
 .vs
 .vscode
+secrets.py
+secrets.template.py

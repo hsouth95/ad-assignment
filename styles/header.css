@@ -24,3 +24,44 @@ header {
     padding-top: 5px;
     padding-bottom: 10px;
 }
+
+.login-box {
+    float: right;
+}
+
+.login-image {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
+
+.login-modal {
+  border-radius: 0;
+}
+
+.login-modal-header {
+    background-color: #e44424;
+    padding: 8px;
+    padding-left: 10px;
+    border-bottom: 1px solid #A52C14;
+}
+
+.googleplus {
+    background: white;
+    color: #444;
+    width: 200px;
+    border-radius: 5px;
+    border: thin solid #888;
+    box-shadow: 1px 1px 1px grey;
+    white-space: nowrap;
+    font-family: serif;
+    font-weight: normal;
+}
+
+.googleplus .icon {
+    background: url('http://images.dailytech.com/nimage/G_is_For_Google_New_Logo_Thumb.png') transparent 5px 50% no-repeat;
+    display: inline-block;
+    vertical-align: middle;
+    width: 42px;
+    height: 42px;
+}

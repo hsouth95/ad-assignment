@@ -1,7 +1,6 @@
 import datetime, time
 
 from google.appengine.ext import ndb
-from google.appengine.ext.ndb import polymodel
 
 class Tag(ndb.Model):
     name = ndb.StringProperty()
@@ -17,9 +16,10 @@ class ImageMetadata(ndb.Model):
     width = ndb.IntegerProperty()
 
 class FileModel(ndb.Model):
-    name = ndb.StringProperty()
-    file_type = ndb.StringProperty()
-    blob_key = ndb.BlobKeyProperty()
+    name = ndb.StringProperty(required=True)
+    user = ndb.StringProperty(required=True)
+    file_type = ndb.StringProperty(required=True)
+    blob_key = ndb.BlobKeyProperty(required=True)
     extension = ndb.StringProperty()
     image_metadata = ndb.StructuredProperty(ImageMetadata)
     audio_metadata = ndb.StructuredProperty(AudioMetadata)
