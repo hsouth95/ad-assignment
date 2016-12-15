@@ -221,7 +221,7 @@ class FileHandler(BaseHandler):
 
 class WaterMarkHandler(BaseHandler):
     def post(self):
-        file = self.request.POST.multi["file"].file.read()
+        file = self.request.POST.get("file").file.read()
         value = self.request.get("value")
 
         tempBuff = StringIO.StringIO(file)
