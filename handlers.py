@@ -18,7 +18,7 @@ from models import *
 from simpleauth import SimpleAuthHandler
 
 LOGOUT_URL = "/logout"
-
+FACEBOOK_AVATAR_URL = 'https://graph.facebook.com/{0}/picture?type=large'
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader("views"))
 
@@ -37,6 +37,13 @@ class BaseHandler(webapp2.RequestHandler):
             'picture-url': 'avatar_url',
             'first-name': 'name',
             'public-profile-url': 'link'
+        },
+        'facebook': {
+            'provider': 'facebook',
+            'friendly_name': 'Facebook',
+            'id': lambda id: ('avatar_url', FACEBOOK_AVATAR_URL.format(id)),
+            'name': 'name',
+            'link': 'link'
         }
     }
 
