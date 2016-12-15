@@ -20,9 +20,10 @@
         </div>
         <div class="login-box">
             {% if logged_in %}
-             <a class="btn" href="{{ logout_url }}">Log out</span>
+                <img src="{{ user.avatar_url }}">
+             <a class="btn" href="{{ logout_url }}">Log out</a>
              {% else %}
-             <a class="btn" href="{{ login_url }}">Log in</button>
+             <a class="btn" href="{{ login_url }}">Log in</a>
              {% endif %}
         </div>
     </header>

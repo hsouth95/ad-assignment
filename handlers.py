@@ -124,13 +124,19 @@ class MainPage(BaseHandler):
         logged_in = self.logged_in
         login_url = "/auth/googleplus"
         logout_url = "/logout"
-
+        
+        if logged_in:
+            user = self.current_user
+        else:
+            user = None
+        
         context = {
             'upload_url': upload_url,
             'title': "WS Ltd Prototype",
             'login_url': login_url,
             'logout_url': logout_url,
-            'logged_in': logged_in 
+            'logged_in': logged_in,
+            'user': user 
         }
         self.response.out.write(template.render(context))
 
