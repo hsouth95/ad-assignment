@@ -25,18 +25,18 @@ FileApi.prototype.getFiles = function(t, e) {
 
 FileApi.prototype.splitData = function(t) {
     var e = [], i = [], n = [];
-    for (var o = 0; o < t.length; o++) {
-        switch (t[o].file_type) {
+    for (var a = 0; a < t.length; a++) {
+        switch (t[a].file_type) {
           case "image":
-            e.push(new ImageObject(t[o]));
+            e.push(new ImageObject(t[a]));
             break;
 
           case "audio":
-            i.push(new AudioObject(t[o]));
+            i.push(new AudioObject(t[a]));
             break;
 
           case "video":
-            n.push(new VideoObject(t[o]));
+            n.push(new VideoObject(t[a]));
             break;
         }
     }
@@ -52,7 +52,8 @@ var AudioObject = function(t) {
     this.blob_key = t.blob_key;
     this.name = t.name;
     this.extension = t.extension;
-    this.duration = t.duration;
+    this.duration = t.audio_metadata.duration;
+    this.created = t.created;
 };
 
 AudioObject.prototype.getDisplayableAttributes = function() {
@@ -89,7 +90,8 @@ var VideoObject = function(t) {
     this.blob_key = t.blob_key;
     this.name = t.name;
     this.extension = t.extension;
-    this.duration = t.duration;
+    this.duration = t.video_metadata.duration;
+    this.created = t.created;
 };
 
 VideoObject.prototype.getDisplayableAttributes = function() {

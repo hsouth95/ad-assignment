@@ -84,10 +84,23 @@ $(function () {
 
         for (attribute in attributes) {
             if (attributes.hasOwnProperty(attribute)) {
-                var extension = document.createElement("h1");
-                extension.innerHTML = attribute + ": " + attributes[attribute];
+                var inputValue = document.createElement("div"),
+                    label = document.createElement("label"),
+                    input = document.createElement("input");
 
-                informationBlock.appendChild(extension);
+                label.innerHTML = attribute;
+
+                input.type = "text";
+                input.id = "edit-information-" + attribute;
+                input.className = "form-control";
+                input.placeholder = attributes[attribute];
+
+                label.for = input.id;
+
+                inputValue.appendChild(label);
+                inputValue.appendChild(input);
+
+                informationBlock.appendChild(inputValue);
             }
         }
 

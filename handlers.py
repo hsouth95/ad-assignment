@@ -216,7 +216,7 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, BaseHandler):
             }
             self.response.out.write(json.dumps(response))
         else:
-            self.error(403)
+            self.error(401)
 
 class FileHandler(BaseHandler):
     def get(self):
@@ -229,7 +229,7 @@ class FileHandler(BaseHandler):
             self.response.headers['Content-Type'] = 'application/json'
             self.response.write(json.dumps(serialized_files))
         else:
-            self.error(403)
+            self.error(401)
 
     def post(self):
         if self.logged_in:
@@ -344,4 +344,4 @@ class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, BaseHandler):
             else:
                 self.send_blob(file_key)
         else:
-            self.error(403)
+            self.error(401)
