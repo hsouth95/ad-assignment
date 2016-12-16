@@ -273,7 +273,7 @@ class WaterMarkHandler(BaseHandler):
     def post(self):
         file = None
         fileUrl = None
-        if self.request.POST.get("file"):
+        if self.request.POST.get("file").file:
             file = self.request.POST.get("file").file.read()
         elif self.request.get("url"):
             fileUrl = self.request.get("url")
