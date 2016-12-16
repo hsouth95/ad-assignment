@@ -10,6 +10,7 @@ from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
 from google.appengine.ext.blobstore import BlobKey
 from google.appengine.ext.webapp import blobstore_handlers
+from google.appengine.api import urlfetch
 
 from PIL import Image, ImageFilter, ImageDraw, ImageFont
 from webapp2_extras import auth, sessions
@@ -270,7 +271,18 @@ class FileHandler(BaseHandler):
 
 class WaterMarkHandler(BaseHandler):
     def post(self):
-        file = self.request.POST.get("file").file.read()
+        file = None
+        fileUrl = None
+        if self.request.POST.get("file"):
+            file = self.request.POST.get("file").file.read()
+        elif self.request.get("url"):
+            fileUrl = self.request.get("url")
+            file = urlfetch.fetch(fileUrl).content
+        else:
+            self.error(400)
+            self.response.write("No image given")
+            return
+        
         value = self.request.get("value")
 
         tempBuff = StringIO.StringIO(file)

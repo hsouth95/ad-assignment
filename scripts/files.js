@@ -180,5 +180,41 @@ $(function () {
         );
     }
 
+    sendEditImage = function(formData, url) {
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            contentType: "image/jpeg",
+            processData: false,
+            success: function() {
+                alert("yolo");
+            },
+            error: function(data) {
+                alert(JSON.stringify(data));
+            }
+        });
+    }
+
+    $("#watermark-btn").on("click", function(){
+        var value = $("#watermark-value").val(),
+            formData = new FormData(),
+            image = document.getElementById("edit-media");
+
+        formData.append("value", value);
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", image.src, true);
+        oReq.responseType = "arraybuffer";
+
+        oReq.onload = function(oEvent) {
+            var blob = new Blob([oReq.response], {type: "image/jpeg"});
+
+            formData.append("file", blob);
+            sendEditImage(formData, "/watermark");
+        }
+        oReq.send();
+        
+    });
+
     listItems();
 });
