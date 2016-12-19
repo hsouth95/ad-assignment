@@ -213,11 +213,6 @@ $(function () {
         return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
     }
 
-    testSend = function(){
-        sendImage(document.getElementById("edit-media"));
-
-    }
-
     sendImage = function(image) {
         var blob = dataURLtoBlob(getDataUri(image)),
             formData = new FormData();
@@ -240,6 +235,7 @@ $(function () {
 
                     if(images) {
                         images[0].src = "/download/" + data.blob_key;
+                        $("#edit-modal").modal("hide");
                     }
                 },
                 error: function(data) {
@@ -262,6 +258,7 @@ $(function () {
             beforeSend: function(){
                 setLoading(true);
                 $(".image-btn").prop("disabled", true);
+                $("#edit-save-btn").prop("disabled", true);
             },
             success: function(data) {
                 var updatedImage = document.createElement("img");
@@ -277,6 +274,7 @@ $(function () {
             complete:function(){
                 setLoading(false);
                 $(".image-btn").prop("disabled", false);
+                $("#edit-save-btn").prop("disabled", false);
             }
         });
     }
@@ -292,6 +290,12 @@ $(function () {
         formData.append("file", blob);
 
         editImage(formData, "/watermark/base64");
+    });
+
+    $("#edit-save-btn").on("click", function(){
+        var image = document.getElementById("edit-media");
+
+        sendImage(image);
     });
 
     listItems();
