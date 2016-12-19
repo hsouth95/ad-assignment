@@ -3,6 +3,7 @@ import webapp2
 import json
 import StringIO
 import secrets
+import base64
 import logging
 import webob.multidict
 
@@ -270,14 +271,15 @@ class FileHandler(BaseHandler):
             self.error(400)
 
 class WaterMarkHandler(BaseHandler):
-    def post(self):
-        file = None
+    def post(self, response_type):
+        fileValue = None
         fileUrl = None
-        if self.request.POST.get("file").file:
-            file = self.request.POST.get("file").file.read()
+        
+        if self.request.get("file"):
+            fileValue = self.request.POST.get("file").file.read()
         elif self.request.get("url"):
             fileUrl = self.request.get("url")
-            file = urlfetch.fetch(fileUrl).content
+            fileValue = urlfetch.fetch(fileUrl).content
         else:
             self.error(400)
             self.response.write("No image given")
@@ -285,7 +287,7 @@ class WaterMarkHandler(BaseHandler):
         
         value = self.request.get("value")
 
-        tempBuff = StringIO.StringIO(file)
+        tempBuff = StringIO.StringIO(fileValue)
 
         im = Image.open(tempBuff)
 
@@ -315,10 +317,16 @@ class WaterMarkHandler(BaseHandler):
 
         output = StringIO.StringIO()
         im.save(output, im.format)
-        text_layer = output.getvalue()
+        finished_image = output.getvalue()
 
+        # Check to see if image response should be in a particular format
+        if response_type:
+            if response_type == "base64":
+                self.response.write(base64.b64encode(finished_image))
+                return
+            
         self.response.headers["Content-Type"] = "image/" + im.format.lower()
-        self.response.write(text_layer)
+        self.response.write(finished_image)
 
 def get_metadata(obj, metadata):
     if isinstance(obj, dict) is False:
@@ -355,5 +363,6 @@ class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, BaseHandler):
                 self.error(404)
             else:
                 self.send_blob(file_key)
+                return
         else:
             self.error(401)

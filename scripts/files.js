@@ -1,6 +1,15 @@
 $(function () {
     var fileApi = new FileApi(),
-        editingFile = null;
+        originalMediaObject = null,
+        originalBlobKey = null;
+
+    setLoading = function(visible) {
+        if(visible) {
+            $(".loading-block").show();
+        } else {
+            $(".loading-block").hide();
+        }
+    }
 
     addElement = function (data) {
         var container = document.createElement("div");
@@ -17,7 +26,7 @@ $(function () {
         editButton.className = "edit-button";
 
         editButton.addEventListener("click", function () {
-            editingFile = data;
+            originalBlobKey = data.blob_key;
             openEditWindow(data);
         });
 
@@ -64,6 +73,7 @@ $(function () {
 
     showElements = function () {
         $(".item").each(function (index) {
+            // Display each file with a delay of 200ms after the last file
             setTimeout(function () {
                 $(".item:nth-child(" + (index + 1) + ")").addClass("is-visible");
             }, 200 * index);
@@ -74,13 +84,13 @@ $(function () {
         var modalContent = document.getElementById("edit-modal-body"),
             mediaBlock = document.getElementsByClassName("media-block")[0],
             informationBlock = document.getElementById("edit-information"),
-            editActionsBlock = document.getElementById("edit-actions");
+            editActionsBlock = document.getElementById("edit-actions"),
+            media = getMediaElement(element),
+            attributes = element.getDisplayableAttributes();
 
-        var media = getMediaElement(element);
         media.id = "edit-media";
         mediaBlock.appendChild(media);
-
-        var attributes = element.getDisplayableAttributes();
+        originalMediaObject = media;
 
         for (attribute in attributes) {
             if (attributes.hasOwnProperty(attribute)) {
@@ -116,7 +126,7 @@ $(function () {
         informationBlock.innerHTML = "";
         editActionsBlock.innerHTML = "";
 
-        editingFile = null;
+        originalMediaObject = null;
     }
 
     listItems = function () {
@@ -180,18 +190,93 @@ $(function () {
         );
     }
 
-    sendEditImage = function(formData, url) {
+    dataURLtoBlob = function(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+
+    getDataUri = function(image) {
+        var canvas = document.createElement("canvas");
+        canvas.height = image.naturalHeight;
+        canvas.width = image.naturalWidth;
+
+        canvas.getContext("2d").drawImage(image, 0, 0);
+
+        return canvas.toDataURL("image/jpeg");
+    }
+
+    hexToBase64 = function(str) {
+        return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
+    }
+
+    testSend = function(){
+        sendImage(document.getElementById("edit-media"));
+
+    }
+
+    sendImage = function(image) {
+        var blob = dataURLtoBlob(getDataUri(image)),
+            formData = new FormData();
+        
+        formData.append("file", blob);
+        formData.append("blob_key", originalBlobKey);
+
+        getUploadUrl(function(url){
+            $.ajax({
+                url: url,
+                data: formData,
+                type: "POST",
+                contentType: false,
+                processData: false,
+                beforeSend: function(){
+                    setLoading(true);
+                },
+                success: function(data) {
+                    var images = $(".grid").find("img[src$='/download/" + originalBlobKey +"']");
+
+                    if(images) {
+                        images[0].src = "/download/" + data.blob_key;
+                    }
+                },
+                error: function(data) {
+                    alert("error uploading image");
+                },
+                complete: function() {
+                    setLoading(false);
+                }
+            })
+        });
+    }
+
+    editImage = function(formData, url) {
         $.ajax({
             url: url,
             type: "POST",
             data: formData,
-            contentType: "image/jpeg",
+            contentType: false,
             processData: false,
-            success: function() {
-                alert("yolo");
+            beforeSend: function(){
+                setLoading(true);
+                $(".image-btn").prop("disabled", true);
+            },
+            success: function(data) {
+                var updatedImage = document.createElement("img");
+                updatedImage.id = "edit-media";
+                updatedImage.onload = function() {
+                    $("#edit-media").replaceWith(updatedImage);
+                }
+                updatedImage.src = "data:image/jpeg;base64," + decodeURIComponent(data);
             },
             error: function(data) {
-                alert(JSON.stringify(data));
+                $("#edit-modal-body").prepend("Error with watermark: " + data.responseText);
+            },
+            complete:function(){
+                setLoading(false);
+                $(".image-btn").prop("disabled", false);
             }
         });
     }
@@ -199,21 +284,14 @@ $(function () {
     $("#watermark-btn").on("click", function(){
         var value = $("#watermark-value").val(),
             formData = new FormData(),
-            image = document.getElementById("edit-media");
+            image = originalMediaObject,
+            dataUrl = getDataUri(image),
+            blob = dataURLtoBlob(dataUrl);
 
         formData.append("value", value);
-        var oReq = new XMLHttpRequest();
-        oReq.open("GET", image.src, true);
-        oReq.responseType = "arraybuffer";
+        formData.append("file", blob);
 
-        oReq.onload = function(oEvent) {
-            var blob = new Blob([oReq.response], {type: "image/jpeg"});
-
-            formData.append("file", blob);
-            sendEditImage(formData, "/watermark");
-        }
-        oReq.send();
-        
+        editImage(formData, "/watermark/base64");
     });
 
     listItems();
