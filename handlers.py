@@ -92,6 +92,9 @@ class BaseHandler(webapp2.RequestHandler):
                 'provider': value['provider'],
                 'friendly_name': value['friendly_name']
             })
+        
+        # Sort by provider name
+        logins = sorted(logins, key=lambda login: login['friendly_name'])
         return logins
 
 class AuthHandler(BaseHandler, SimpleAuthHandler):
@@ -226,13 +229,13 @@ class FileHandler(BaseHandler):
         if self.logged_in:
             user_key = self.current_user.key
 
-        files = build_query(self.request)
-        serialized_files = [x.get_json() for x in files.fetch(10)]
+            files = build_query(self.request).filter(FileModel.user == str(user_key.id()))
+            serialized_files = [x.get_json() for x in files]
 
-        self.response.headers['Content-Type'] = 'application/json'
-        self.response.write(json.dumps(serialized_files))
-        #else:
-        #    self.error(401)
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.write(json.dumps(serialized_files))
+        else:
+            self.error(401)
 
     def post(self):
         if self.logged_in:
@@ -335,25 +338,23 @@ def build_query(request):
     """
     q = FileModel.query()
 
-    if request.get("id"):
+    if request.get("id") and request.get("id") is not None:
         q = q.filter(FileModel.id == long(request.get("id")))
         return q
     
-    if request.get("name"):
+    if request.get("name") and request.get("name") is not None:
         # GAE does not have partial string matching so name must be a full match
         q = q.filter(FileModel.name == request.get("name"))
     
-    if request.get("extensions"):
+    if request.get("extensions") and request.get("extensions") is not None:
         extensions = request.get("extensions").split(",")
 
-        for(extension in extensions):
-            q = q.filter(FileModel.extension == extension)
+        q = q.filter(FileModel.extension.IN([x for x in extensions]))
     
-    if request.get("file_types"):
+    if request.get("file_types") and request.get("file_types") is not None:
         file_types = request.get("file_types").split(",")
 
-        for(file_type in file_types):
-            q = q.filter(FileModel.file_type == file_type)
+        q = q.filter(FileModel.file_type.IN([x for x in file_types]))
 
     return q
 

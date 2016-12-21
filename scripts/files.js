@@ -165,11 +165,15 @@ $(function () {
         fileApi.getFiles($.param(getFilters()), function (data) {
             var elements = Array.prototype.concat(data.images, data.audios, data.videos);
 
-            $.each(elements, function () {
-                addElement(this);
-            });
+            if(elements && elements.length > 0){
+                $.each(elements, function () {
+                    addElement(this);
+                });
 
-            showElements();
+                showElements();
+            } else {
+                $(".grid").html("<h1>No files</h1>");
+            }
         });
     }
 
@@ -251,7 +255,6 @@ $(function () {
         
         formData.append("file", blob);
         formData.append("blob_key", originalBlobKey);
-
         getUploadUrl(function(url){
             $.ajax({
                 url: url,
