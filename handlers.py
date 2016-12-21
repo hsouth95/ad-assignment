@@ -343,11 +343,18 @@ def build_query(request):
         # GAE does not have partial string matching so name must be a full match
         q = q.filter(FileModel.name == request.get("name"))
     
-    if request.get("extension"):
-        q = q.filter(FileModel.extension == request.get("extension"))
+    if request.get("extensions"):
+        extensions = request.get("extensions").split(",")
+
+        for(extension in extensions):
+            q = q.filter(FileModel.extension == extension)
     
-    if request.get("file_type"):
-        q = q.filter(FileModel.file_type == request.get("file_type"))
+    if request.get("file_types"):
+        file_types = request.get("file_types").split(",")
+
+        for(file_type in file_types):
+            q = q.filter(FileModel.file_type == file_type)
+
     return q
 
 def get_metadata(obj, metadata):

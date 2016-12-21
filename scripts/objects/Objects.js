@@ -1,5 +1,5 @@
 if (typeof $ === "undefined" && typeof jQuery === "undefined") {
-    throw new Error("FileApi requireds jQuery");
+    throw new Error("FileApi requires jQuery");
 }
 
 var FileApi = function(t) {
@@ -7,18 +7,18 @@ var FileApi = function(t) {
     this.addUrl = window.location.protocol + "//" + window.location.host + "/files";
 };
 
-FileApi.prototype.getFiles = function(t, e) {
-    var i = this;
+FileApi.prototype.getFiles = function(t, e, i) {
+    var n = this, a = t ? this.listUrl + "?" + t : this.listUrl;
     $.ajax({
-        url: this.listUrl,
+        url: a,
         type: "GET",
         dataType: "json",
         contentType: "application/json",
-        success: function(e) {
-            t(i.splitData(e));
+        success: function(t) {
+            e(n.splitData(t));
         },
         error: function(t) {
-            e(t);
+            i(t);
         }
     });
 };

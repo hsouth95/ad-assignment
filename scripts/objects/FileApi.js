@@ -9,9 +9,9 @@ var FileApi = function (options) {
 
 FileApi.prototype.getFiles = function (filters, successCallback, errorCallback) {
     var that = this,
-        url = filters ? this.listUrl + filters : this.listUrl;
+        url = filters ? this.listUrl + "?" + filters : this.listUrl;
     $.ajax({
-        url: this.listUrl,
+        url: url,
         type: "GET",
         dataType: "json",
         contentType: "application/json",

@@ -92,7 +92,7 @@ $(function () {
         mediaBlock.appendChild(media);
         originalMediaObject = media;
 
-        for (attribute in attributes) {
+        for (var attribute in attributes) {
             if (attributes.hasOwnProperty(attribute)) {
                 var inputValue = document.createElement("div"),
                     label = document.createElement("label"),
@@ -130,13 +130,39 @@ $(function () {
     }
 
     getFilters = function() {
-        var filterInputs = $(".sidebar").find("input");
+        var DELIMITER = "-",
+            filterInputs = $(".sidebar").find("input"),
+            filterData = {};
 
-        
+        $.each(filterInputs, function(){
+            // Split by delimiter to find out the category of data
+            var filterCategory = this.name.split(DELIMITER)[0],
+                filterItem = this.name.split(DELIMITER)[1];
+
+            switch(this.type) {
+                case "checkbox":
+                    if(this.checked){
+                        if(filterData[filterCategory]){
+                            filterData[filterCategory] += "," + filterItem;
+                        } else {
+                            filterData[filterCategory] = filterItem;
+                        }
+                    }
+                    break;
+                case "text":
+                    if(this.value) {
+                        filterData[filterItem] = this.value; 
+                    }
+                    break;
+            }
+        });
+
+        return filterData;
     }
 
     listItems = function () {
-        fileApi.getFiles(null, function (data) {
+        $(".grid").html("");
+        fileApi.getFiles($.param(getFilters()), function (data) {
             var elements = Array.prototype.concat(data.images, data.audios, data.videos);
 
             $.each(elements, function () {
@@ -305,7 +331,7 @@ $(function () {
     });
 
     $("#filter-btn").on("click", function(){
-
+        listItems();
     });
 
     listItems();
