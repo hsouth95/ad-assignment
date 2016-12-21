@@ -1,5 +1,5 @@
 if (typeof $ === "undefined" && typeof jQuery === "undefined") {
-    throw new Error("FileApi requireds jQuery");
+    throw new Error("FileApi requires jQuery");
 }
 
 var FileApi = function (options) {
@@ -7,8 +7,9 @@ var FileApi = function (options) {
     this.addUrl = window.location.protocol + "//" + window.location.host + "/files";
 }
 
-FileApi.prototype.getFiles = function (successCallback, errorCallback) {
-    var that = this;
+FileApi.prototype.getFiles = function (filters, successCallback, errorCallback) {
+    var that = this,
+        url = filters ? this.listUrl + filters : this.listUrl;
     $.ajax({
         url: this.listUrl,
         type: "GET",

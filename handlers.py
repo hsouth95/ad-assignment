@@ -6,6 +6,7 @@ import secrets
 import base64
 import logging
 import webob.multidict
+import datetime
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
@@ -225,13 +226,13 @@ class FileHandler(BaseHandler):
         if self.logged_in:
             user_key = self.current_user.key
 
-            files = FileModel.query(FileModel.user == str(user_key.id()))
-            serialized_files = [x.get_json() for x in files]
+        files = build_query(self.request)
+        serialized_files = [x.get_json() for x in files.fetch(10)]
 
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(serialized_files))
-        else:
-            self.error(401)
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(serialized_files))
+        #else:
+        #    self.error(401)
 
     def post(self):
         if self.logged_in:
@@ -327,6 +328,27 @@ class WaterMarkHandler(BaseHandler):
             
         self.response.headers["Content-Type"] = "image/" + im.format.lower()
         self.response.write(finished_image)
+
+def build_query(request):
+    """Builds a ndb query for the FileModel from the 
+    parameters given by a request
+    """
+    q = FileModel.query()
+
+    if request.get("id"):
+        q = q.filter(FileModel.id == long(request.get("id")))
+        return q
+    
+    if request.get("name"):
+        # GAE does not have partial string matching so name must be a full match
+        q = q.filter(FileModel.name == request.get("name"))
+    
+    if request.get("extension"):
+        q = q.filter(FileModel.extension == request.get("extension"))
+    
+    if request.get("file_type"):
+        q = q.filter(FileModel.file_type == request.get("file_type"))
+    return q
 
 def get_metadata(obj, metadata):
     if isinstance(obj, dict) is False:

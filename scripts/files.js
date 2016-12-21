@@ -129,8 +129,14 @@ $(function () {
         originalMediaObject = null;
     }
 
+    getFilters = function() {
+        var filterInputs = $(".sidebar").find("input");
+
+        
+    }
+
     listItems = function () {
-        fileApi.getFiles(function (data) {
+        fileApi.getFiles(null, function (data) {
             var elements = Array.prototype.concat(data.images, data.audios, data.videos);
 
             $.each(elements, function () {
@@ -296,6 +302,10 @@ $(function () {
         var image = document.getElementById("edit-media");
 
         sendImage(image);
+    });
+
+    $("#filter-btn").on("click", function(){
+
     });
 
     listItems();
