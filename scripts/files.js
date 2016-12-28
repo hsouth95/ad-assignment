@@ -13,9 +13,10 @@ $(function () {
 
     addElement = function (data) {
         var container = document.createElement("div");
-        container.className = "item col-lg-3 col-md-4 col-sm-6 col-xs-12";
+        container.className = "item col-lg-4 col-md-4 col-sm-6 col-xs-12";
 
         var mediaElement = getMediaElement(data);
+        mediaElement.className += " center-block";
 
         var information = document.createElement("div");
         information.innerHTML = "<span>" + data.name + "</span>";
