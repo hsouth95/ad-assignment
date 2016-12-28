@@ -189,9 +189,12 @@ $(function () {
     shareFile = function(id) {
         fileApi.shareFile(id, function(data) {
             var url = fileApi.editUrl + "/" + data.id;
-            alert("Your url is: " + url);
+            toastr.success("Share from: <a href='" + url + "'>" + url + "</a>", "Share Success", {
+                timeOut: 0,
+                closeButton: true
+            });
         }, function(data) {
-            alert("Error sharing file");
+            toastr.error("Unable to create a shared file with error: <br />" + data + " <br />Please try again.", "Error");
         });
     }
 
@@ -260,10 +263,11 @@ $(function () {
                     if(images) {
                         images[0].src = "/download/" + data.blob_key;
                         $("#edit-modal").modal("hide");
+                        toastr.success("Updated file");
                     }
                 },
                 error: function(data) {
-                    alert("error uploading image");
+                    toastr.error("Failed to uploaded update file with error: " + data, "Error");
                 },
                 complete: function() {
                     setLoading(false);

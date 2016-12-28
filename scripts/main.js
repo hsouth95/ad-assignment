@@ -44,7 +44,7 @@ $(function () {
             populateInformation();
         },
             function (message) {
-                alert(message);
+                toastr.error("Failed to parse the uploading file with error: " + message, "Error");
                 resetForm(false);
             });
     }
@@ -188,6 +188,9 @@ $(function () {
                 contentType: false,
                 success: function (data) {
                     postFileData(data.blob_key);
+                },
+                error: function(data) {
+                    toastr.error("Failed to upload the file to the server.", "Error");
                 }
             });
         }
@@ -225,8 +228,10 @@ $(function () {
             success: function (data) {
                 setUploadUrl(true);
                 resetForm(true);
+                toastr.success("File uploaded successfully!", "Success");
             },
             error: function (data) {
+                toastr.error("Failed to upload the file data to the server", "Error");
                 resetForm(false);
             }
         });
