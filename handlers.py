@@ -11,6 +11,7 @@ import datetime
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
 from google.appengine.ext.blobstore import BlobKey
+from google.appengine.datastore import datastore_query
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.api import urlfetch
 
@@ -272,8 +273,9 @@ class FileHandler(BaseHandler):
             user_key = self.current_user.key
 
             files = build_query(self.request).filter(FileModel.user == str(user_key.id()))
-            serialized_files = [x.get_json() for x in files]
 
+            serialized_files = {}
+            serialized_files["files"] = [x.get_json() for x in files]
             self.response.headers['Content-Type'] = 'application/json'
             self.response.write(json.dumps(serialized_files))
         else:
@@ -281,8 +283,10 @@ class FileHandler(BaseHandler):
 
     def post(self):
         if self.logged_in:
-
             data = json.loads(self.request.body)
+
+            id = data["id"]
+            updating = True if id else False
 
             name = data["filename"]
             file_type = data["file_type"]
@@ -295,12 +299,21 @@ class FileHandler(BaseHandler):
             if name is None or file_type is None or blob_key is None:
                 self.error(400)
                 return
+            
+            fileModel = None
+            if updating:
+                fileModel = FileModel.get_by_id(long(id))
+            else:
+                fileModel = FileModel()
 
-            fileModel = FileModel(name=name,
-                                  file_type=file_type,
-                                  blob_key=BlobKey(blob_key),
-                                  extension=extension,
-                                  user=user)
+
+            fileModel.name = name
+            fileModel.file_type = file_type
+            fileModel.blob_key = BlobKey(blob_key)
+            fileModel.extension = extension
+            
+            if not updating:
+                fileModel.user = user
 
             if file_type == "image":
                 fileModel.image_metadata = get_metadata(metadata, ImageMetadata)

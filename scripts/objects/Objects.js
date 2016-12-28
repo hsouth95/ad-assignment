@@ -17,7 +17,7 @@ FileApi.prototype.getFiles = function(t, e, i) {
         dataType: "json",
         contentType: "application/json",
         success: function(t) {
-            e(o.splitData(t));
+            e(o.splitData(t.files));
         },
         error: function(t) {
             i(t);

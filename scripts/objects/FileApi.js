@@ -18,7 +18,7 @@ FileApi.prototype.getFiles = function (filters, successCallback, errorCallback) 
         dataType: "json",
         contentType: "application/json",
         success: function (data) {
-            successCallback(that.splitData(data));
+            successCallback(that.splitData(data.files));
         },
         error: function (data) {
             errorCallback(data);
@@ -66,4 +66,18 @@ FileApi.prototype.splitData = function (data) {
         audios: audioObjects,
         videos: videoObjects
     };
+}
+
+FileApi.prototype.updateFileData = function(data, successCallback, errorCallback) {
+    $.ajax({
+        url: this.addUrl,
+        type: "POST",
+        contentType: "application/json",
+        success: function(data){
+            successCallback(data);
+        }, 
+        error: function(data) {
+            errorCallback(data);
+        }
+    });
 }

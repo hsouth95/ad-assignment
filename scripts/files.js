@@ -169,6 +169,23 @@ $(function () {
 
         return filterData;
     }
+    convertFormToJSON = function (form) {
+        var array = $(form).serializeArray(),
+            json = {};
+
+        json.metadata = {};
+
+        $.each(array, function () {
+            if (this.name.substr(0, "metadata-".length) === "metadata-") {
+                var attrName = this.name.split("metadata-")[1];
+                json.metadata[attrName] = this.value;
+            } else {
+                json[this.name] = this.value || "";
+            }
+        });
+
+        return json;
+    }
 
     listItems = function () {
         $(".grid").html("");
@@ -308,6 +325,10 @@ $(function () {
         });
     }
 
+    updateFile = function() {
+        var data = convertFormToJSON($("#edit-information"));
+    }
+
     $("#watermark-btn").on("click", function(){
         var value = $("#watermark-value").val(),
             formData = new FormData(),
@@ -324,7 +345,7 @@ $(function () {
     $("#edit-save-btn").on("click", function(){
         var image = document.getElementById("edit-media");
 
-        sendImage(image);
+        sendImage(image, updateFile);
     });
 
     $("#filter-btn").on("click", function(){
