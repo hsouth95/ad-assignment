@@ -2,6 +2,7 @@ import datetime, time
 
 from google.appengine.ext import ndb
 
+
 class Tag(ndb.Model):
     name = ndb.StringProperty()
 
@@ -43,3 +44,6 @@ class FileModel(ndb.Model):
             properties['created'] = int(time.mktime(properties['created'].timetuple())) * 1000
 
         return properties
+        
+class Collaboration(ndb.Model):
+    file_model = ndb.KeyProperty(kind=FileModel, required=True)

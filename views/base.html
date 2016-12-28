@@ -22,9 +22,7 @@
         <div class="login-box">
             {% if user %}
                 <a href="{{ user.link }}"><img class="login-image" src="{{ user.avatar_url }}"></a>
-                <button class="btn btn-success">
-                    <a href="{{ logout_url }}">Log out</a>
-                </button>
+                <a class="logout" href="{{ logout_url }}">Log out</a>
              {% else %}
                 <button class="btn btn-primary" id="login-button">
                     Log in

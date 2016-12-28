@@ -179,7 +179,6 @@ class MainPage(BaseHandler):
 class FilePage(BaseHandler):
     def get(self):
         if self.logged_in:
-            logout_url = "/logout"
             user = self.current_user
 
             template = template_env.get_template('files.html')
@@ -191,6 +190,32 @@ class FilePage(BaseHandler):
             self.response.out.write(template.render(context))
         else:
             self.redirect("/")
+
+class EditPage(BaseHandler):
+    def get(self, id):
+        if id:
+            collab = Collaboration.get_by_id(long(id))
+
+            if collab:
+                file_model_key = collab.file_model
+                file_model = file_model_key.get()
+
+                if file_model:
+                    user = None
+                    # User does not need to be logged in to edit the collaborated file
+                    if self.logged_in:
+                        user = self.current_user
+
+                    template = template_env.get_template("edit.html")
+                    context = {
+                        "title": "WS Ltd Prototype",
+                        "logout_url": LOGOUT_URL,
+                        "user": user,
+                        "file_model": file_model 
+                    }
+                    self.response.write(template.render(context))
+                else:
+                    self.error(404)
 
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, BaseHandler):
     def get(self):
@@ -221,6 +246,23 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, BaseHandler):
                 'blob_key': value_key
             }
             self.response.out.write(json.dumps(response))
+        else:
+            self.error(401)
+
+class ShareHandler(BaseHandler):
+    def get(self, id):
+        if self.logged_in and id:
+            user_key = self.current_user.key
+
+            file_model = FileModel.get_by_id(long(id))
+
+            # Check if key exists and that this user owns the file
+            if file_model and file_model.user == str(user_key.id()):
+                collab = Collaboration(file_model=file_model.key)
+
+                key = collab.put()
+
+                self.response.write(key.id())
         else:
             self.error(401)
 
@@ -388,11 +430,8 @@ class MockHandler(BaseHandler):
 
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, BaseHandler):
     def get(self, file_key):
-        if self.logged_in:
-            if not blobstore.get(file_key):
-                self.error(404)
-            else:
-                self.send_blob(file_key)
-                return
+        if not blobstore.get(file_key):
+            self.error(404)
         else:
-            self.error(401)
+            self.send_blob(file_key)
+            return

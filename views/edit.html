@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <link type="text/css" rel="stylesheet" href="/css/edit.css" />
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="media-block col-lg-8 col-sm-12">
+            <img class="editing-photo" src="/download/{{ file_model.blob_key }}">
+        </div>
+        <div class="information-block col-lg-4 col-sm-12">
+            <input type="text" class="form-control" />
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="/js/objects/Objects.js"></script>
+    <script src="/js/edit.js"></script>
+{% endblock %}
