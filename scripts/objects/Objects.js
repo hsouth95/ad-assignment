@@ -5,17 +5,35 @@ if (typeof $ === "undefined" && typeof jQuery === "undefined") {
 var FileApi = function(t) {
     this.listUrl = window.location.protocol + "//" + window.location.host + "/files";
     this.addUrl = window.location.protocol + "//" + window.location.host + "/files";
+    this.shareUrl = window.location.protocol + "//" + window.location.host + "/share";
+    this.editUrl = window.location.protocol + "//" + window.location.host + "/editpage";
 };
 
 FileApi.prototype.getFiles = function(t, e, i) {
-    var n = this, a = t ? this.listUrl + "?" + t : this.listUrl;
+    var o = this, n = t ? this.listUrl + "?" + t : this.listUrl;
     $.ajax({
-        url: a,
+        url: n,
         type: "GET",
         dataType: "json",
         contentType: "application/json",
         success: function(t) {
-            e(n.splitData(t));
+            e(o.splitData(t));
+        },
+        error: function(t) {
+            i(t);
+        }
+    });
+};
+
+FileApi.prototype.shareFile = function(t, e, i) {
+    var o = this.shareUrl + "/" + t;
+    $.ajax({
+        url: o,
+        type: "POST",
+        contentType: "application/json",
+        success: function(t) {
+            jsonData = JSON.parse(t);
+            e(jsonData);
         },
         error: function(t) {
             i(t);
@@ -24,31 +42,31 @@ FileApi.prototype.getFiles = function(t, e, i) {
 };
 
 FileApi.prototype.splitData = function(t) {
-    var e = [], i = [], n = [];
-    for (var a = 0; a < t.length; a++) {
-        switch (t[a].file_type) {
+    var e = [], i = [], o = [];
+    for (var n = 0; n < t.length; n++) {
+        switch (t[n].file_type) {
           case "image":
-            e.push(new ImageObject(t[a]));
+            e.push(new ImageObject(t[n]));
             break;
 
           case "audio":
-            i.push(new AudioObject(t[a]));
+            i.push(new AudioObject(t[n]));
             break;
 
           case "video":
-            n.push(new VideoObject(t[a]));
+            o.push(new VideoObject(t[n]));
             break;
         }
     }
     return {
         images: e,
         audios: i,
-        videos: n
+        videos: o
     };
 };
 
 var AudioObject = function(t) {
-    this.id = t.id;
+    this.id = t.key;
     this.blob_key = t.blob_key;
     this.name = t.name;
     this.extension = t.extension;
@@ -66,7 +84,7 @@ AudioObject.prototype.getDisplayableAttributes = function() {
 };
 
 var ImageObject = function(t) {
-    this.id = t.id;
+    this.id = t.key;
     this.blob_key = t.blob_key;
     this.name = t.name;
     this.extension = t.extension;
@@ -87,6 +105,7 @@ ImageObject.prototype.getDisplayableAttributes = function() {
 };
 
 var VideoObject = function(t) {
+    this.id = t.key;
     this.blob_key = t.blob_key;
     this.name = t.name;
     this.extension = t.extension;

@@ -5,6 +5,8 @@ if (typeof $ === "undefined" && typeof jQuery === "undefined") {
 var FileApi = function (options) {
     this.listUrl = window.location.protocol + "//" + window.location.host + "/files";
     this.addUrl = window.location.protocol + "//" + window.location.host + "/files";
+    this.shareUrl = window.location.protocol + "//" + window.location.host + "/share";
+    this.editUrl = window.location.protocol + "//" + window.location.host + "/editpage";
 }
 
 FileApi.prototype.getFiles = function (filters, successCallback, errorCallback) {
@@ -19,6 +21,22 @@ FileApi.prototype.getFiles = function (filters, successCallback, errorCallback) 
             successCallback(that.splitData(data));
         },
         error: function (data) {
+            errorCallback(data);
+        }
+    });
+}
+
+FileApi.prototype.shareFile = function(id, successCallback, errorCallback) {
+    var url = this.shareUrl + "/" + id;
+    $.ajax({
+        url: url,
+        type: "POST",
+        contentType: "application/json",
+        success: function(data){
+            jsonData = JSON.parse(data);
+            successCallback(jsonData);
+        },
+        error: function(data) {
             errorCallback(data);
         }
     });

@@ -250,7 +250,7 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, BaseHandler):
             self.error(401)
 
 class ShareHandler(BaseHandler):
-    def get(self, id):
+    def post(self, id):
         if self.logged_in and id:
             user_key = self.current_user.key
 
@@ -262,7 +262,7 @@ class ShareHandler(BaseHandler):
 
                 key = collab.put()
 
-                self.response.write(key.id())
+                self.response.write(json.dumps({"id": key.id()}))
         else:
             self.error(401)
 

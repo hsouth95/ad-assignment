@@ -23,13 +23,22 @@ $(function () {
 
         var editButton = document.createElement("span");
         editButton.innerHTML = "<i class='fa fa-pencil'></i>";
-        editButton.className = "edit-button";
+        editButton.className = "information-button edit-button";
+
+        var shareButton = document.createElement("span");
+        shareButton.innerHTML = "<i class='fa fa-share-alt'></li>";
+        shareButton.className = "information-button share-button";
 
         editButton.addEventListener("click", function () {
             originalBlobKey = data.blob_key;
             openEditWindow(data);
         });
 
+        shareButton.addEventListener("click", function(){
+            shareFile(data.id);
+        });
+
+        information.appendChild(shareButton);
         information.appendChild(editButton);
 
         container.appendChild(information);
@@ -177,6 +186,15 @@ $(function () {
         });
     }
 
+    shareFile = function(id) {
+        fileApi.shareFile(id, function(data) {
+            var url = fileApi.editUrl + "/" + data.id;
+            alert("Your url is: " + url);
+        }, function(data) {
+            alert("Error sharing file");
+        });
+    }
+
     getUploadUrl = function (callback) {
         $.ajax({
             url: "/upload",
@@ -189,35 +207,6 @@ $(function () {
 
     $("#edit-modal").on("hidden.bs.modal", clearEditWindow);
 
-    $("#edit-button-save").on("click", function () {
-        Caman("#edit-media", function () {
-            this.contrast(10);
-            this.render(function () {
-                var image = this.toBase64();
-                urlToFile(image, editingFile.name, "image/" + editingFile.extension)
-                    .then(function (file) {
-                        var data = new FormData();
-                        data.append("file", file);
-                        data.append("blob_key", editingFile.blob_key);
-
-                        getUploadUrl(function (url) {
-                            $.ajax({
-                                url: url,
-                                type: "POST",
-                                data: data,
-                                processData: false,
-                                contentType: false,
-                                success: function (data) {
-                                },
-                                error: function (data) {
-                                    alert(data);
-                                }
-                            })
-                        });
-                    });
-            });
-        });
-    });
 
     urlToFile = function (url, filename, mimeType) {
         return (fetch(url)

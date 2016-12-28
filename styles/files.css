@@ -18,12 +18,17 @@
   padding: 20px;
 }
 
-.edit-button {
+.information-button {
   float: right;
+  margin-right: 10px;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
-.edit-button:hover {
+.information-button:hover {
   cursor: pointer;
+  color: #A52C14;
 }
 
 .item > img,
