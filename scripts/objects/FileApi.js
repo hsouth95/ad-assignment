@@ -68,10 +68,11 @@ FileApi.prototype.splitData = function (data) {
     };
 }
 
-FileApi.prototype.updateFileData = function(data, successCallback, errorCallback) {
+FileApi.prototype.updateFileData = function(id, data, successCallback, errorCallback) {
+    var url = this.addUrl + "/" + id;
     $.ajax({
-        url: this.addUrl,
-        type: "POST",
+        url: url,
+        type: "PUT",
         contentType: "application/json",
         success: function(data){
             successCallback(data);

@@ -1,7 +1,7 @@
-from webapp2 import WSGIApplication, Route
+import webapp2
 
 from secrets import SESSION_KEY
-from handlers import *
+from handlers import pages, datahandlers, basehandlers, edit_filehandlers
 
 # Build a config for the sessions to ensure security
 app_config = {
@@ -14,15 +14,22 @@ app_config = {
   }
 }
 
-app = webapp2.WSGIApplication([('/', MainPage),
-                            ('/upload', UploadHandler),
-                            ('/download/([^/]+)?', DownloadHandler),
-                            ('/viewfiles', FilePage),
-                            ('/files', FileHandler),
-                            ('/editpage/([^/]+)?', EditPage),
-                            ('/watermark/([^/]+)?', WaterMarkHandler),
-                            ('/share/([^/]+)?', ShareHandler),
-                            ('/mock', MockHandler),
-                            Route('/auth/<provider>', handler='handlers.AuthHandler:_simple_auth', name='auth_login'),
-                            Route('/auth/<provider>/callback', handler='handlers.AuthHandler:_auth_callback', name='auth_callback'),
-                            Route('/logout', handler='handlers.AuthHandler:logout', name='logout')], config=app_config, debug=True)
+app = webapp2.WSGIApplication([('/', pages.MainPage),
+                            ('/viewfiles', pages.FilePage),
+                            ('/editpage/([^/]+)?', pages.EditPage),
+                            ('/upload', datahandlers.UploadHandler),
+                            ('/download/([^/]+)?', datahandlers.DownloadHandler),
+                            ('/files', datahandlers.FileHandler),
+                            ('/files/([^/]+)?', datahandlers.FileHandler),
+                            ('/share/([^/]+)?', datahandlers.ShareHandler),
+                            ('/watermark/([^/]+)?', edit_filehandlers.WaterMarkHandler),
+                            webapp2.Route('/auth/<provider>', 
+                             handler='basehandlers.AuthHandler:_simple_auth',
+                             name='auth_login'),
+                            webapp2.Route('/auth/<provider>/callback',
+                             handler='basehandlers.AuthHandler:_auth_callback',
+                             name='auth_callback'),
+                            webapp2.Route('/logout',
+                             handler='basehandlers.AuthHandler:logout',
+                              name='logout')],
+                               config=app_config, debug=True)

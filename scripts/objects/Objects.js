@@ -10,9 +10,9 @@ var FileApi = function(t) {
 };
 
 FileApi.prototype.getFiles = function(t, e, i) {
-    var o = this, n = t ? this.listUrl + "?" + t : this.listUrl;
+    var o = this, a = t ? this.listUrl + "?" + t : this.listUrl;
     $.ajax({
-        url: n,
+        url: a,
         type: "GET",
         dataType: "json",
         contentType: "application/json",
@@ -43,18 +43,18 @@ FileApi.prototype.shareFile = function(t, e, i) {
 
 FileApi.prototype.splitData = function(t) {
     var e = [], i = [], o = [];
-    for (var n = 0; n < t.length; n++) {
-        switch (t[n].file_type) {
+    for (var a = 0; a < t.length; a++) {
+        switch (t[a].file_type) {
           case "image":
-            e.push(new ImageObject(t[n]));
+            e.push(new ImageObject(t[a]));
             break;
 
           case "audio":
-            i.push(new AudioObject(t[n]));
+            i.push(new AudioObject(t[a]));
             break;
 
           case "video":
-            o.push(new VideoObject(t[n]));
+            o.push(new VideoObject(t[a]));
             break;
         }
     }
@@ -63,6 +63,21 @@ FileApi.prototype.splitData = function(t) {
         audios: i,
         videos: o
     };
+};
+
+FileApi.prototype.updateFileData = function(t, e, i, o) {
+    var a = this.addUrl + "/" + t;
+    $.ajax({
+        url: a,
+        type: "PUT",
+        contentType: "application/json",
+        success: function(t) {
+            i(t);
+        },
+        error: function(t) {
+            o(t);
+        }
+    });
 };
 
 var AudioObject = function(t) {
@@ -78,7 +93,9 @@ AudioObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        duration: this.duration,
+        metadata: {
+            duration: this.duration
+        },
         created: this.created
     };
 };
@@ -98,8 +115,10 @@ ImageObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        height: this.height,
-        width: this.width,
+        metadata: {
+            height: this.height,
+            width: this.width
+        },
         created: this.created
     };
 };
@@ -117,7 +136,9 @@ VideoObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        duration: this.duration,
+        metadata: {
+            duration: this.duration
+        },
         created: this.created
     };
 };

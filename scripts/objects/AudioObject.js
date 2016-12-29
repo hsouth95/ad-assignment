@@ -12,7 +12,9 @@ AudioObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        duration: this.duration,
+        metadata: {
+            duration: this.duration
+        },
         created: this.created
     };
 }
