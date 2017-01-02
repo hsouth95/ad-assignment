@@ -2,7 +2,8 @@ $(function () {
     var fileApi = new FileApi(),
         originalMediaObject = null,
         originalBlobKey = null,
-        id = null;
+        id = null,
+        fileMediaUpdated = false;
 
     setLoading = function(visible) {
         if(visible) {
@@ -107,32 +108,11 @@ $(function () {
         for (var attribute in attributes) {
             if (attributes.hasOwnProperty(attribute)) {
                 var inputValue = document.createElement("div"),
-                    label = document.createElement("label"),
-                    input = document.createElement("input"),
-                    metadataDelimiter = "metadata_",
-                    friendlyAttribute = null,
-                    isMetadata = false;
-
-                // Check if this attribute belongs under metadata
-                if(attribute.substr(0, metadataDelimiter.length) === metadataDelimiter){
-                    isMetadata = true;
-                    friendlyAttribute = attribute.substr(metadataDelimiter.length);
-                } else {
-                    friendlyAttribute = attribute;
-                }
-
-                label.innerHTML = friendlyAttribute;
-
-                input.type = "text";
-                input.id = "edit-information-" + friendlyAttribute;
-
-                input.name = isMetadata ? "metadata-" + friendlyAttribute : attribute;
-
+                    input = attributes[attribute].getInputElement("edit-information"),
+                    label = attributes[attribute].getLabelElement("edit-information");
+                
                 input.className = "form-control";
-                input.placeholder = attributes[attribute];
-
-                label.for = input.id;
-
+                
                 inputValue.appendChild(label);
                 inputValue.appendChild(input);
 
@@ -229,7 +209,7 @@ $(function () {
     shareFile = function(id) {
         fileApi.shareFile(id, function(data) {
             var url = fileApi.editUrl + "/" + data.id;
-            toastr.success("Share from: <input class='form-control' type='url' value='" + url +"' />", "Share Success", {
+            toastr.success("Share from: <input onclick='this.select();' class='form-control' type='url' value='" + url +"' />", "Share Success", {
                 timeOut: 0,
                 extendedTimeOut: 0,
                 closeButton: true,
@@ -370,7 +350,11 @@ $(function () {
     $("#edit-save-btn").on("click", function(){
         var file = document.getElementById("edit-media");
 
-        sendFile(file, updateFile);
+        if(fileMediaUpdated){
+            sendFile(file, updateFile);
+        } else {
+            updateFile();
+        }
     });
 
     $("#filter-btn").on("click", function(){

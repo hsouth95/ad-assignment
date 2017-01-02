@@ -1,14 +1,17 @@
-var Field = function(objects) {
-    this.name = objects.name;
-    this.initialValue = objects.value || null;
-    this.type = objects.type || "text";
-    this.disabled = objects.disabled || false;
+var Field = function(options) {
+    this.name = options.name;
+    this.initialValue = options.value || null;
+    this.type = options.type || "text";
+    this.disabled = options.disabled || false;
+    this.friendlyName = options.friendlyName || null;
 }
 
 Field.prototype.getLabelElement = function(idPrefix) {
     var label = document.createElement("label");
-    label.innerHTML = this.name.charAt(0).toUpperCase() + this.name.splice(1);
-    label.for = idPrefix ? idPrefix + this.name : this.name; 
+    label.innerHTML = this.friendlyName || this.name.charAt(0).toUpperCase() + this.name.splice(1);
+    label.for = idPrefix ? idPrefix + "-" + this.name : this.name;
+
+    return label;
 }
 
 Field.prototype.getInputElement = function(idPrefix){
@@ -17,7 +20,7 @@ Field.prototype.getInputElement = function(idPrefix){
     input.placeholder = this.initialValue;
     input.type = this.type;
     input.disabled = this.disabled;
-    input.id = idPrefix ? idPrefix + this.name : this.name;
+    input.id = idPrefix ? idPrefix + "-" + this.name : this.name;
 
     return input;
 }

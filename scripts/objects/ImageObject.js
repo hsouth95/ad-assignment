@@ -11,10 +11,30 @@ var ImageObject = function(options) {
 
 ImageObject.prototype.getDisplayableAttributes = function() {
     return {
-        name: this.name,
-        extension: this.extension,
-        metadata_height: this.height,
-        metadata_width: this.width,
-        created: this.created
+        name: new Field({
+            name: "name",
+            value: this.name,
+            friendlyName: "Name"
+        }),
+        extension: new Field({
+            name: "extension",
+            value: this.extension,
+            friendlyName: "File Extension",
+            disabled: true,
+        }),
+        metadata_height: new Field({
+            name: "metadata-height",
+            value: this.height,
+            friendlyName: "Height",
+            disabled: true,
+            type: "number"
+        }), 
+        metadata_width: new Field({
+            name: "metadata-width",
+            value: this.width,
+            friendlyName: "Width",
+            disabled: true,
+            type: "number"
+        })
     };
 }

@@ -9,9 +9,22 @@ var VideoObject = function(options) {
 
 VideoObject.prototype.getDisplayableAttributes = function() {
     return {
-        name: this.name,
-        extension: this.extension,
-        metadata_duration: this.duration,
-        created: this.created
+        name: new Field({
+            name: "name",
+            value: this.name,
+            friendlyName: "Name"
+        }),
+        extension: new Field({
+            name: "extension",
+            value: this.extension,
+            friendlyName: "File Extension",
+            disabled: true,
+        }),
+        metadata_duration: new Field({
+            name: "metadata-duration",
+            value: this.duration,
+            friendlyName: "Duration",
+            disabled: true,
+        })
     };
 }

@@ -46,6 +46,7 @@ class FileHandler(basehandlers.BaseHandler):
         file_model = FileModel.get_by_id(long(file_id))
         if file_model and file_model.user == str(self.current_user.key.id()):
             data = json.loads(self.request.body)
+            logging.error(data)
             metadata = data["metadata"] if hasattr(data, "metadata") else None
             
             if metadata:
@@ -54,14 +55,14 @@ class FileHandler(basehandlers.BaseHandler):
             file_model = self.__set_entity_attrs(file_model, data)
 
             if metadata:
-                self.response.write("2")
+                logging.error("yolo1")
                 if file_model.file_type is "image":
                     file_model.image_metadata = self.__set_entity_attrs(file_model.image_metadata, metadata)
                 elif file_model.file_type is "audio":
                     file_model.audio_metadata = self.__set_entity_attrs(file_model.audio_metadata, metadata)
                 elif file_model.file_type is "video":
                     file_model.video_metadata = self.__set_entity_attrs(file_model.video_metadata, metadata)
-            
+            logging.error("yolo2")
             file_model.put()
 
     def post(self):
