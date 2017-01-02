@@ -4,7 +4,7 @@ import base64
 
 from google.appengine.api import urlfetch
 from PIL import Image, ImageFilter, ImageDraw, ImageFont
-from handlers import basehandlers
+import basehandlers
 
 class WaterMarkHandler(basehandlers.BaseHandler):
     def post(self, response_type):

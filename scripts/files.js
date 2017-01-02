@@ -100,8 +100,6 @@ $(function () {
             media = getMediaElement(element),
             attributes = element.getDisplayableAttributes();
 
-        delete attributes.metadata;
-
         media.id = "edit-media";
         mediaBlock.appendChild(media);
         originalMediaObject = media;
@@ -110,13 +108,26 @@ $(function () {
             if (attributes.hasOwnProperty(attribute)) {
                 var inputValue = document.createElement("div"),
                     label = document.createElement("label"),
-                    input = document.createElement("input");
+                    input = document.createElement("input"),
+                    metadataDelimiter = "metadata_",
+                    friendlyAttribute = null,
+                    isMetadata = false;
 
-                label.innerHTML = attribute;
+                // Check if this attribute belongs under metadata
+                if(attribute.substr(0, metadataDelimiter.length) === metadataDelimiter){
+                    isMetadata = true;
+                    friendlyAttribute = attribute.substr(metadataDelimiter.length);
+                } else {
+                    friendlyAttribute = attribute;
+                }
+
+                label.innerHTML = friendlyAttribute;
 
                 input.type = "text";
-                input.id = "edit-information-" + attribute;
-                input.name = attribute;
+                input.id = "edit-information-" + friendlyAttribute;
+
+                input.name = isMetadata ? "metadata-" + friendlyAttribute : attribute;
+
                 input.className = "form-control";
                 input.placeholder = attributes[attribute];
 
@@ -194,7 +205,8 @@ $(function () {
             }
         });
 
-        return isFieldToUpdate ? json : null;
+        // Only return data if any updates are present
+        return isFieldToUpdate ? JSON.stringify(json) : null;
     }
 
     listItems = function () {
@@ -217,9 +229,12 @@ $(function () {
     shareFile = function(id) {
         fileApi.shareFile(id, function(data) {
             var url = fileApi.editUrl + "/" + data.id;
-            toastr.success("Share from: <a href='" + url + "'>" + url + "</a>", "Share Success", {
+            toastr.success("Share from: <input class='form-control' type='url' value='" + url +"' />", "Share Success", {
                 timeOut: 0,
-                closeButton: true
+                extendedTimeOut: 0,
+                closeButton: true,
+                onclick: null,
+                tapToDismiss: false
             });
         }, function(data) {
             toastr.error("Unable to create a shared file with error: <br />" + data + " <br />Please try again.", "Error");
@@ -284,13 +299,6 @@ $(function () {
                 },
                 success: function(data) {
                     callback();
-                    var images = $(".grid").find("img[src$='/download/" + originalBlobKey +"']");
-
-                    if(images) {
-                        images[0].src = "/download/" + data.blob_key;
-                        $("#edit-modal").modal("hide");
-                        toastr.success("Updated file");
-                    }
                 },
                 error: function(data) {
                     toastr.error("Failed to uploaded update file with error: " + data, "Error");
@@ -335,10 +343,11 @@ $(function () {
 
     updateFile = function() {
         var data = convertFormToJSON($("#edit-information"));
-
         if(data){
             fileApi.updateFileData(id, data, function(){
-                alert("success!");
+                $("#edit-modal").modal("hide");
+                toastr.success("Updated file");
+                listItems();
             });
         }
     }

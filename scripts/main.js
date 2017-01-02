@@ -71,7 +71,10 @@ $(function () {
 
 
     populateInformation = function () {
-        addField("filename", "File Name", "text", uploadingFile.data.name);
+        var name = uploadingFile.data.name,
+            extension = uploadingFile.data.name.split(".").slice(-1)[0];
+
+        addField("filename", "File Name", "text", name.substr(0, name.length - (extension.length + 1)));
 
         for (var attribute in uploadingFile.data) {
             if (uploadingFile.data.hasOwnProperty(attribute) &&

@@ -73,6 +73,7 @@ FileApi.prototype.updateFileData = function(id, data, successCallback, errorCall
     $.ajax({
         url: url,
         type: "PUT",
+        data: data,
         contentType: "application/json",
         success: function(data){
             successCallback(data);

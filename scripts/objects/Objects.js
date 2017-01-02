@@ -10,14 +10,14 @@ var FileApi = function(t) {
 };
 
 FileApi.prototype.getFiles = function(t, e, i) {
-    var o = this, a = t ? this.listUrl + "?" + t : this.listUrl;
+    var a = this, o = t ? this.listUrl + "?" + t : this.listUrl;
     $.ajax({
-        url: a,
+        url: o,
         type: "GET",
         dataType: "json",
         contentType: "application/json",
         success: function(t) {
-            e(o.splitData(t.files));
+            e(a.splitData(t.files));
         },
         error: function(t) {
             i(t);
@@ -26,9 +26,9 @@ FileApi.prototype.getFiles = function(t, e, i) {
 };
 
 FileApi.prototype.shareFile = function(t, e, i) {
-    var o = this.shareUrl + "/" + t;
+    var a = this.shareUrl + "/" + t;
     $.ajax({
-        url: o,
+        url: a,
         type: "POST",
         contentType: "application/json",
         success: function(t) {
@@ -42,40 +42,41 @@ FileApi.prototype.shareFile = function(t, e, i) {
 };
 
 FileApi.prototype.splitData = function(t) {
-    var e = [], i = [], o = [];
-    for (var a = 0; a < t.length; a++) {
-        switch (t[a].file_type) {
+    var e = [], i = [], a = [];
+    for (var o = 0; o < t.length; o++) {
+        switch (t[o].file_type) {
           case "image":
-            e.push(new ImageObject(t[a]));
+            e.push(new ImageObject(t[o]));
             break;
 
           case "audio":
-            i.push(new AudioObject(t[a]));
+            i.push(new AudioObject(t[o]));
             break;
 
           case "video":
-            o.push(new VideoObject(t[a]));
+            a.push(new VideoObject(t[o]));
             break;
         }
     }
     return {
         images: e,
         audios: i,
-        videos: o
+        videos: a
     };
 };
 
-FileApi.prototype.updateFileData = function(t, e, i, o) {
-    var a = this.addUrl + "/" + t;
+FileApi.prototype.updateFileData = function(t, e, i, a) {
+    var o = this.addUrl + "/" + t;
     $.ajax({
-        url: a,
+        url: o,
         type: "PUT",
+        data: e,
         contentType: "application/json",
         success: function(t) {
             i(t);
         },
         error: function(t) {
-            o(t);
+            a(t);
         }
     });
 };
@@ -93,9 +94,7 @@ AudioObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        metadata: {
-            duration: this.duration
-        },
+        metadata_duration: this.duration,
         created: this.created
     };
 };
@@ -115,10 +114,8 @@ ImageObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        metadata: {
-            height: this.height,
-            width: this.width
-        },
+        metadata_height: this.height,
+        metadata_width: this.width,
         created: this.created
     };
 };
@@ -136,9 +133,7 @@ VideoObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        metadata: {
-            duration: this.duration
-        },
+        metadata_duration: this.duration,
         created: this.created
     };
 };

@@ -1,7 +1,8 @@
 import webapp2
 
 from secrets import SESSION_KEY
-from handlers import pages, datahandlers, basehandlers, edit_filehandlers
+import basehandlers
+from handlers import pages, datahandlers, edit_filehandlers
 
 # Build a config for the sessions to ensure security
 app_config = {
@@ -13,7 +14,6 @@ app_config = {
     'user_attributes': []
   }
 }
-
 app = webapp2.WSGIApplication([('/', pages.MainPage),
                             ('/viewfiles', pages.FilePage),
                             ('/editpage/([^/]+)?', pages.EditPage),
@@ -23,9 +23,7 @@ app = webapp2.WSGIApplication([('/', pages.MainPage),
                             ('/files/([^/]+)?', datahandlers.FileHandler),
                             ('/share/([^/]+)?', datahandlers.ShareHandler),
                             ('/watermark/([^/]+)?', edit_filehandlers.WaterMarkHandler),
-                            webapp2.Route('/auth/<provider>', 
-                             handler='basehandlers.AuthHandler:_simple_auth',
-                             name='auth_login'),
+                            webapp2.Route('/auth/<provider>', handler='basehandlers.AuthHandler:_simple_auth'),
                             webapp2.Route('/auth/<provider>/callback',
                              handler='basehandlers.AuthHandler:_auth_callback',
                              name='auth_callback'),

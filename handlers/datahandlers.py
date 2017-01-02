@@ -2,12 +2,13 @@ import jinja2
 import webapp2
 import json
 import datetime
+import logging
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
 from google.appengine.ext.blobstore import BlobKey
 from google.appengine.ext.webapp import blobstore_handlers
-from handlers import basehandlers
+import basehandlers
 from models import *
 
 class ShareHandler(basehandlers.BaseHandler):
@@ -43,7 +44,7 @@ class FileHandler(basehandlers.BaseHandler):
     
     def put(self, file_id):
         file_model = FileModel.get_by_id(long(file_id))
-        if file_model and file_model.user is str(self.current_user.key.id()):
+        if file_model and file_model.user == str(self.current_user.key.id()):
             data = json.loads(self.request.body)
             metadata = data["metadata"] if hasattr(data, "metadata") else None
             
@@ -53,6 +54,7 @@ class FileHandler(basehandlers.BaseHandler):
             file_model = self.__set_entity_attrs(file_model, data)
 
             if metadata:
+                self.response.write("2")
                 if file_model.file_type is "image":
                     file_model.image_metadata = self.__set_entity_attrs(file_model.image_metadata, metadata)
                 elif file_model.file_type is "audio":
@@ -102,7 +104,7 @@ class FileHandler(basehandlers.BaseHandler):
     def __set_entity_attrs(self, entity, data):
         for key in data:
             if hasattr(entity, key):
-                entity[key] = data[key]
+                setattr(entity, key, data[key])
             
         return entity
 

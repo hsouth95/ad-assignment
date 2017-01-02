@@ -33,7 +33,6 @@ class BaseHandler(webapp2.RequestHandler):
         }
     }
 
-
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)

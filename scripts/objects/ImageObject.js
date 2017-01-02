@@ -13,10 +13,8 @@ ImageObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        metadata: {
-            height: this.height,
-            width: this.width
-        },
+        metadata_height: this.height,
+        metadata_width: this.width,
         created: this.created
     };
 }

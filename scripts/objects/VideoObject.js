@@ -11,9 +11,7 @@ VideoObject.prototype.getDisplayableAttributes = function() {
     return {
         name: this.name,
         extension: this.extension,
-        metadata: {
-            duration: this.duration,
-        },
+        metadata_duration: this.duration,
         created: this.created
     };
 }

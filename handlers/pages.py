@@ -3,7 +3,7 @@ import webapp2
 
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
-from handlers import basehandlers
+import basehandlers
 from models import Collaboration, FileModel
 
 LOGOUT_URL = "/logout"
