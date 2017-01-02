@@ -43,29 +43,23 @@ FileApi.prototype.shareFile = function(id, successCallback, errorCallback) {
 }
 
 FileApi.prototype.splitData = function (data) {
-    var imageObjects = [],
-        audioObjects = [],
-        videoObjects = [];
+    var objects = [];
 
     for (var i = 0; i < data.length; i++) {
         switch (data[i].file_type) {
             case "image":
-                imageObjects.push(new ImageObject(data[i]));
+                objects.push(new ImageObject(data[i]));
                 break;
             case "audio":
-                audioObjects.push(new AudioObject(data[i]));
+                objects.push(new AudioObject(data[i]));
                 break;
             case "video":
-                videoObjects.push(new VideoObject(data[i]));
+                objects.push(new VideoObject(data[i]));
                 break;
         }
     }
 
-    return {
-        images: imageObjects,
-        audios: audioObjects,
-        videos: videoObjects
-    };
+    return objects;
 }
 
 FileApi.prototype.updateFileData = function(id, data, successCallback, errorCallback) {

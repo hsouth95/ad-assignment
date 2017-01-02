@@ -190,12 +190,12 @@ $(function () {
     }
 
     listItems = function () {
-        $(".grid").html("");
+        $(".grid").html("<div class='loading-container'><div class='spinner'><div class='double-bounce1'></div><div class='double-bounce2'></div></div></div>");
         fileApi.getFiles($.param(getFilters()), function (data) {
-            var elements = Array.prototype.concat(data.images, data.audios, data.videos);
+            $(".grid").html("");
 
-            if(elements && elements.length > 0){
-                $.each(elements, function () {
+            if(data && data.length > 0){
+                $.each(data, function () {
                     addElement(this);
                 });
 
@@ -267,6 +267,7 @@ $(function () {
         
         formData.append("file", blob);
         formData.append("blob_key", originalBlobKey);
+        
         getUploadUrl(function(url){
             $.ajax({
                 url: url,

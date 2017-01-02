@@ -25,7 +25,9 @@
     overflow-x: visible;
 }
 
-.drag-n-drop-content img {
+.drag-n-drop-content img,
+.drag-n-drop-content audio,
+.drag-n-drop-content video {
     max-height: 300px;
     max-width: 300px;
 }

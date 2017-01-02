@@ -8,8 +8,9 @@
     height: 320px;
 }
 
-.sidebar {
+.filter-group {
   background-color: #FF917A;
+  padding: 10px;
 }
 
 .information-button {
@@ -39,6 +40,7 @@
 .item > audio {
     height: 32px;
     margin-top: 50px;
+    width: 100%;
 }
 
 .item {

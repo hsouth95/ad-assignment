@@ -42,27 +42,23 @@ FileApi.prototype.shareFile = function(e, t, i) {
 };
 
 FileApi.prototype.splitData = function(e) {
-    var t = [], i = [], a = [];
-    for (var n = 0; n < e.length; n++) {
-        switch (e[n].file_type) {
+    var t = [];
+    for (var i = 0; i < e.length; i++) {
+        switch (e[i].file_type) {
           case "image":
-            t.push(new ImageObject(e[n]));
+            t.push(new ImageObject(e[i]));
             break;
 
           case "audio":
-            i.push(new AudioObject(e[n]));
+            t.push(new AudioObject(e[i]));
             break;
 
           case "video":
-            a.push(new VideoObject(e[n]));
+            t.push(new VideoObject(e[i]));
             break;
         }
     }
-    return {
-        images: t,
-        audios: i,
-        videos: a
-    };
+    return t;
 };
 
 FileApi.prototype.updateFileData = function(e, t, i, a) {

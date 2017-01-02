@@ -33,7 +33,7 @@ class FileHandler(basehandlers.BaseHandler):
         if self.logged_in:
             user_key = self.current_user.key
 
-            files = build_query(self.request).filter(FileModel.user == str(user_key.id()))
+            files = build_query(self.request).filter(FileModel.user == str(user_key.id())).order(-FileModel.created)
 
             serialized_files = {}
             serialized_files["files"] = [x.get_json() for x in files]
