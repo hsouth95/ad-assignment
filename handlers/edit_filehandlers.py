@@ -65,8 +65,8 @@ class WaterMarkHandler(basehandlers.BaseHandler):
         self.response.headers["Content-Type"] = "image/" + im.format.lower()
         self.response.write(finished_image)
 
-class ExifTagsHandler(basehandlers.BaseHandler):
-    def post(self):
+class GreyscaleHandler(basehandlers.BaseHandler):
+    def post(self, response_type):
         file_value = None
         
         if self.request.get("file"):
@@ -84,6 +84,12 @@ class ExifTagsHandler(basehandlers.BaseHandler):
         output = StringIO.StringIO()
         im.save(output, "PNG")
         finished_image = output.getvalue()
-
-        self.response.headers["Content-Type"] = "image/png"
+        
+        # Check to see if image response should be in a particular format
+        if response_type:
+            if response_type == "base64":
+                self.response.write(base64.b64encode(finished_image))
+                return
+            
+        self.response.headers["Content-Type"] = "image/" + im.format.lower()
         self.response.write(finished_image)
