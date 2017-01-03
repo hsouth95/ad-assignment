@@ -15,6 +15,7 @@ class VideoMetadata(ndb.Model):
 class ImageMetadata(ndb.Model):
     height = ndb.IntegerProperty()
     width = ndb.IntegerProperty()
+    camera = ndb.StringProperty()
 
 class FileModel(ndb.Model):
     name = ndb.StringProperty(required=True)

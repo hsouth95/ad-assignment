@@ -92,6 +92,22 @@ $(function () {
                     uploadingFile.data.metadata[metaAttribute]);
             }
         }
+
+        
+    }
+
+    getServiceAttrs = function(){
+        var formData = new FormData($("#file-form")[0]);
+        
+        switch(uploadingFile.data.file_type){
+            case "image":
+                getAuthor(formData);
+                break;
+            case "audio":
+                break;
+            case "video":
+                break;
+        }
     }
 
     /**
@@ -236,6 +252,31 @@ $(function () {
             error: function (data) {
                 toastr.error("Failed to upload the file data to the server", "Error");
                 resetForm(false);
+            }
+        });
+    }
+
+    getAuthor = function(formData, callback) {
+        var url = "https://ws-media.appspot.com/photo/photometadata";
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            crossDomain: true,
+            success: function(data) {
+                if(data !== "Unable to derive data from the given file"){
+                    alert(data);
+                    if(typeof callback === "function"){
+                        callback();
+                    }
+                } else {
+                    toastr.warning("No camera details on file");
+                }
+            },
+            error: function(data) {
+                toastr.warning("Error finding camera details");
             }
         });
     }

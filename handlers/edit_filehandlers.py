@@ -4,6 +4,7 @@ import base64
 
 from google.appengine.api import urlfetch
 from PIL import Image, ImageFilter, ImageDraw, ImageFont
+from PIL.ExifTags import TAGS
 import basehandlers
 
 class WaterMarkHandler(basehandlers.BaseHandler):
@@ -64,3 +65,25 @@ class WaterMarkHandler(basehandlers.BaseHandler):
         self.response.headers["Content-Type"] = "image/" + im.format.lower()
         self.response.write(finished_image)
 
+class ExifTagsHandler(basehandlers.BaseHandler):
+    def post(self):
+        file_value = None
+        
+        if self.request.get("file"):
+            file_value = self.request.POST.get("file").file.read()
+        else:
+            self.error(400)
+            self.response.write("No image given")
+            return
+        
+        temp_buff = StringIO.StringIO(file_value)
+
+        im = Image.open(temp_buff)
+        im = im.convert("L")
+
+        output = StringIO.StringIO()
+        im.save(output, "PNG")
+        finished_image = output.getvalue()
+
+        self.response.headers["Content-Type"] = "image/png"
+        self.response.write(finished_image)

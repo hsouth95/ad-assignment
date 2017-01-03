@@ -11,6 +11,8 @@ handlers:
   script: main.app
 - url: .*
   script: main.app
+  http_headers:
+    Access-Control-Allow-Origin: "*"
 
 libraries:
 - name: webapp2
