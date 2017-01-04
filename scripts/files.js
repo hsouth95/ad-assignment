@@ -93,6 +93,39 @@ $(function () {
         });
     }
 
+    getFileEditFunctions = function(file) {
+        var editFunctions = [];
+        $.each(EDIT_FUNCTIONS, function(){
+            if(!this.applicableFileTypes || this.applicableFileTypes.indexOf(file.file_type) !== -1){
+                if(!this.applicableExtensions || this.applicableExtensions.indexOf(file.extension) !== -1){
+                    editFunctions.push(this);
+                }
+            }
+        });
+
+        return editFunctions;
+    }
+
+    getFileAttributes = function(attributes, id){
+        var editInformationAttrs = [];
+        for (var attribute in attributes) {
+            if (attributes.hasOwnProperty(attribute)) {
+                var inputValue = document.createElement("div"),
+                    input = attributes[attribute].getInputElement(id),
+                    label = attributes[attribute].getLabelElement(id);
+                
+                input.className = "form-control";
+                
+                inputValue.appendChild(label);
+                inputValue.appendChild(input);
+
+                editInformationAttrs.push(inputValue);
+            }
+        }
+
+        return editInformationAttrs;
+    }
+
     openEditWindow = function (element) {
         var modalContent = document.getElementById("edit-modal-body"),
             mediaBlock = document.getElementsByClassName("media-block")[0],
@@ -105,20 +138,23 @@ $(function () {
         mediaBlock.appendChild(media);
         originalMediaObject = media;
 
-        for (var attribute in attributes) {
-            if (attributes.hasOwnProperty(attribute)) {
-                var inputValue = document.createElement("div"),
-                    input = attributes[attribute].getInputElement("edit-information"),
-                    label = attributes[attribute].getLabelElement("edit-information");
-                
-                input.className = "form-control";
-                
-                inputValue.appendChild(label);
-                inputValue.appendChild(input);
+        attributeElements = getFileAttributes(attributes, "edit-information");
+        fileEditFunctions = getFileEditFunctions(element);
 
-                informationBlock.appendChild(inputValue);
+        $.each(attributeElements, function(){
+            informationBlock.appendChild(this);
+        });
+        $.each(fileEditFunctions, function(){
+            editActionsBlock.appendChild(this.displayableElement());
+        });
+
+        $(".file-function").click(function(){
+            if(editFunction){
+                editFunction.fire(originalMediaObject, function(data){
+                    editFunction.replaceImageFile("edit-media", "jpg", data);
+                });
             }
-        }
+        });
 
         $("#edit-modal").modal({ show: true });
     }
@@ -231,36 +267,6 @@ $(function () {
         });
     }
 
-    urlToFile = function (url, filename, mimeType) {
-        return (fetch(url)
-            .then(function (res) { return res.arrayBuffer(); })
-            .then(function (buf) { return new File([buf], filename, { type: mimeType }); })
-        );
-    }
-
-    dataURLtoBlob = function(dataurl) {
-        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-        while(n--){
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], {type:mime});
-    }
-
-    getDataUri = function(image) {
-        var canvas = document.createElement("canvas");
-        canvas.height = image.naturalHeight;
-        canvas.width = image.naturalWidth;
-
-        canvas.getContext("2d").drawImage(image, 0, 0);
-
-        return canvas.toDataURL("image/jpeg");
-    }
-
-    hexToBase64 = function(str) {
-        return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
-    }
-
     sendFile = function(file, callback) {
         var blob = dataURLtoBlob(getDataUri(file)),
             formData = new FormData();
@@ -334,19 +340,6 @@ $(function () {
     }
 
     $("#edit-modal").on("hidden.bs.modal", clearEditWindow);
-
-    $("#watermark-btn").on("click", function(){
-        var value = $("#watermark-value").val(),
-            formData = new FormData(),
-            image = originalMediaObject,
-            dataUrl = getDataUri(image),
-            blob = dataURLtoBlob(dataUrl);
-
-        formData.append("value", value);
-        formData.append("file", blob);
-
-        editImage(formData, "/watermark/base64");
-    });
 
     $("#edit-save-btn").on("click", function(){
         var file = document.getElementById("edit-media");

@@ -5,6 +5,7 @@ var AudioObject = function(options) {
     this.extension = options.extension;
     this.duration = options.audio_metadata.duration;
     this.created = options.created;
+    this.file_type = options.file_type;
 }
 
 

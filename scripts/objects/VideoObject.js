@@ -5,6 +5,7 @@ var VideoObject = function(options) {
     this.extension = options.extension;
     this.duration = options.video_metadata.duration;
     this.created = options.created;
+    this.file_type = options.file_type;
 }
 
 VideoObject.prototype.getDisplayableAttributes = function() {

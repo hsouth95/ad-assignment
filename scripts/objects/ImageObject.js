@@ -6,6 +6,7 @@ var ImageObject = function(options) {
     this.height = options.image_metadata.height;
     this.width = options.image_metadata.width;
     this.created = new Date(options.created);
+    this.file_type = options.file_type;
     this.tags = options.tags;
 }
 
