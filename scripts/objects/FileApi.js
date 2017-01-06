@@ -2,16 +2,18 @@ if (typeof $ === "undefined" && typeof jQuery === "undefined") {
     throw new Error("FileApi requires jQuery");
 }
 
+LIST_URL = window.location.protocol + "//" + window.location.host + "/files";
+ADD_URL = window.location.protocol + "//" + window.location.host + "/files";
+DELETE_URL = window.location.protocol + "//" + window.location.host + "/files";
+SHARE_URL = window.location.protocol + "//" + window.location.host + "/share";
+EDIT_URL = window.location.protocol + "//" + window.location.host + "/editpage";
+
 var FileApi = function () {
-    this.listUrl = window.location.protocol + "//" + window.location.host + "/files";
-    this.addUrl = window.location.protocol + "//" + window.location.host + "/files";
-    this.shareUrl = window.location.protocol + "//" + window.location.host + "/share";
-    this.editUrl = window.location.protocol + "//" + window.location.host + "/editpage";
 }
 
 FileApi.prototype.getFiles = function (filters, successCallback, errorCallback) {
     var that = this,
-        url = filters ? this.listUrl + "?" + filters : this.listUrl;
+        url = filters ? LIST_URL + "?" + filters : LIST_URL;
     $.ajax({
         url: url,
         type: "GET",
@@ -26,8 +28,23 @@ FileApi.prototype.getFiles = function (filters, successCallback, errorCallback) 
     });
 }
 
+FileApi.prototype.deleteFile = function(id, successCallback, errorCallback) {
+    var url = DELETE_URL + "/" + id;
+    $.ajax({
+        url: url,
+        type: "DELETE",
+        contentType: "application/json",
+        success: function(){
+            successCallback()
+        },
+        error: function(data) {
+            errorCallback(data);
+        }
+    });
+}
+
 FileApi.prototype.shareFile = function(id, successCallback, errorCallback) {
-    var url = this.shareUrl + "/" + id;
+    var url = SHARE_URL + "/" + id;
     $.ajax({
         url: url,
         type: "POST",
@@ -63,7 +80,7 @@ FileApi.prototype.splitData = function (data) {
 }
 
 FileApi.prototype.updateFileData = function(id, data, successCallback, errorCallback) {
-    var url = this.addUrl + "/" + id;
+    var url = ADD_URL + "/" + id;
     $.ajax({
         url: url,
         type: "PUT",

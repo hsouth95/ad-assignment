@@ -5,6 +5,7 @@ import secrets
 from webapp2_extras import auth, sessions
 from google.appengine.ext import ndb
 from simpleauth import SimpleAuthHandler
+from simpleauth import Error as AuthError
 
 FACEBOOK_AVATAR_URL = 'https://graph.facebook.com/{0}/picture?type=large'
 
@@ -29,7 +30,7 @@ class BaseHandler(webapp2.RequestHandler):
             'friendly_name': 'Facebook',
             'id': lambda id: ('avatar_url', FACEBOOK_AVATAR_URL.format(id)),
             'name': 'name',
-            'link': 'link'
+            'link': None
         }
     }
 
@@ -39,7 +40,10 @@ class BaseHandler(webapp2.RequestHandler):
 
         try:
             # Dispatch the request.
+            self.response.headers.add('Access-Control-Allow-Origin', '*')
             webapp2.RequestHandler.dispatch(self)
+        except AuthError:
+            self.redirect('/')
         finally:
             # Save all sessions.
             self.session_store.save_sessions(self.response)

@@ -24,24 +24,11 @@ $(function () {
         information.innerHTML = "<span>" + data.name + "</span>";
         information.className = "file-info";
 
-        var editButton = document.createElement("span");
-        editButton.innerHTML = "<i class='fa fa-pencil'></i>";
-        editButton.className = "information-button edit-button";
+        var editButton = getEditButton(data),
+            shareButton = getShareButton(data),
+            deleteButton = getDeleteButton(data);
 
-        var shareButton = document.createElement("span");
-        shareButton.innerHTML = "<i class='fa fa-share-alt'></li>";
-        shareButton.className = "information-button share-button";
-
-        editButton.addEventListener("click", function () {
-            originalBlobKey = data.blob_key;
-            editingData = data;
-            openEditWindow(data);
-        });
-
-        shareButton.addEventListener("click", function () {
-            shareFile(data.id);
-        });
-
+        information.appendChild(deleteButton);
         information.appendChild(shareButton);
         information.appendChild(editButton);
 
@@ -49,6 +36,52 @@ $(function () {
         container.appendChild(mediaElement);
 
         $(".grid").append(container);
+    }
+
+    getDeleteButton = function (data) {
+        var deleteButton = document.createElement("span");
+        deleteButton.innerHTML = "<i class='fa fa-times'></i>";
+        deleteButton.className = "information-button delete-button";
+
+        deleteButton.addEventListener("click", function () {
+            var isConfirmed = window.confirm("Are you sure you want to delete this file permenantly?");
+            if (isConfirmed) {
+                FileApi.prototype.deleteFile(data.id, function () {
+                    toastr.success("File successfully deleted");
+                    listItems();
+                }, function (data) {
+                    toastr.error("File failed to delete");
+                });
+            }
+        });
+
+        return deleteButton;
+    }
+
+    getEditButton = function (data) {
+        var editButton = document.createElement("span");
+        editButton.innerHTML = "<i class='fa fa-pencil'></i>";
+        editButton.className = "information-button edit-button";
+
+        editButton.addEventListener("click", function () {
+            originalBlobKey = data.blob_key;
+            editingData = data;
+            openEditWindow(data);
+        });
+
+        return editButton;
+    }
+
+    getShareButton = function (data) {
+        var shareButton = document.createElement("span");
+        shareButton.innerHTML = "<i class='fa fa-share-alt'></li>";
+        shareButton.className = "information-button share-button";
+
+        shareButton.addEventListener("click", function () {
+            shareFile(data.id);
+        });
+
+        return shareButton;
     }
 
     getMediaElement = function (data) {

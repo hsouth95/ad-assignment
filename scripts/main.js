@@ -93,7 +93,7 @@ $(function () {
             }
         }
 
-        
+        getServiceAttrs();
     }
 
     getServiceAttrs = function(){
@@ -101,6 +101,7 @@ $(function () {
         
         switch(uploadingFile.data.file_type){
             case "image":
+                debugger;
                 getAuthor(formData);
                 break;
             case "audio":

@@ -2,15 +2,20 @@ if (typeof $ === "undefined" && typeof jQuery === "undefined") {
     throw new Error("FileApi requires jQuery");
 }
 
-var FileApi = function() {
-    this.listUrl = window.location.protocol + "//" + window.location.host + "/files";
-    this.addUrl = window.location.protocol + "//" + window.location.host + "/files";
-    this.shareUrl = window.location.protocol + "//" + window.location.host + "/share";
-    this.editUrl = window.location.protocol + "//" + window.location.host + "/editpage";
-};
+LIST_URL = window.location.protocol + "//" + window.location.host + "/files";
+
+ADD_URL = window.location.protocol + "//" + window.location.host + "/files";
+
+DELETE_URL = window.location.protocol + "//" + window.location.host + "/files";
+
+SHARE_URL = window.location.protocol + "//" + window.location.host + "/share";
+
+EDIT_URL = window.location.protocol + "//" + window.location.host + "/editpage";
+
+var FileApi = function() {};
 
 FileApi.prototype.getFiles = function(e, t, i) {
-    var a = this, n = e ? this.listUrl + "?" + e : this.listUrl;
+    var a = this, n = e ? LIST_URL + "?" + e : LIST_URL;
     $.ajax({
         url: n,
         type: "GET",
@@ -25,8 +30,23 @@ FileApi.prototype.getFiles = function(e, t, i) {
     });
 };
 
+FileApi.prototype.deleteFile = function(e, t, i) {
+    var a = DELETE_URL + "/" + e;
+    $.ajax({
+        url: a,
+        type: "DELETE",
+        contentType: "application/json",
+        success: function(e) {
+            toastr.success("File deleted");
+        },
+        error: function(e) {
+            toastr.error("File not deleted");
+        }
+    });
+};
+
 FileApi.prototype.shareFile = function(e, t, i) {
-    var a = this.shareUrl + "/" + e;
+    var a = SHARE_URL + "/" + e;
     $.ajax({
         url: a,
         type: "POST",
@@ -62,7 +82,7 @@ FileApi.prototype.splitData = function(e) {
 };
 
 FileApi.prototype.updateFileData = function(e, t, i, a) {
-    var n = this.addUrl + "/" + e;
+    var n = ADD_URL + "/" + e;
     $.ajax({
         url: n,
         type: "PUT",
@@ -237,11 +257,11 @@ EditFileFunction.prototype.getDataUri = function(e) {
 };
 
 EditFileFunction.prototype.dataUrlToBlob = function(e) {
-    var t = e.split(","), i = t[0].match(/:(.*?);/)[1], a = atob(t[1]), n = a.length, l = new Uint8Array(n);
+    var t = e.split(","), i = t[0].match(/:(.*?);/)[1], a = atob(t[1]), n = a.length, o = new Uint8Array(n);
     while (n--) {
-        l[n] = a.charCodeAt(n);
+        o[n] = a.charCodeAt(n);
     }
-    return new Blob([ l ], {
+    return new Blob([ o ], {
         type: i
     });
 };

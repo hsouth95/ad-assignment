@@ -66,7 +66,7 @@ class WaterMarkHandler(basehandlers.BaseHandler):
             if response_type == "base64":
                 self.response.write(base64.b64encode(finished_image))
                 return
-            
+        
         self.response.headers["Content-Type"] = "image/" + im.format.lower()
         self.response.write(finished_image)
 
