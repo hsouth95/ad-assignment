@@ -149,6 +149,16 @@ $(function () {
         });
 
         $(".file-function").click(function(){
+            var editFunction,
+                that = this;
+
+            $.each(fileEditFunctions, function(){
+                if(this.id === that.id){
+                    editFunction = this;
+                    return false;
+                }
+            });
+
             if(editFunction){
                 editFunction.fire(originalMediaObject, function(data){
                     editFunction.replaceImageFile("edit-media", "jpg", data);

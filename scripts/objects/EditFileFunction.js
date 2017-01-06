@@ -25,10 +25,10 @@ EditFileFunction.prototype.getData = function(file){
 
 EditFileFunction.prototype.getDataUri = function(file){
     var canvas = document.createElement("canvas");
-        canvas.height = image.naturalHeight;
-        canvas.width = image.naturalWidth;
+        canvas.height = file.naturalHeight;
+        canvas.width = file.naturalWidth;
 
-    canvas.getContext("2d").drawImage(image, 0, 0);
+    canvas.getContext("2d").drawImage(file, 0, 0);
 
     return canvas.toDataURL("image/jpeg");
 }

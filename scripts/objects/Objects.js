@@ -231,8 +231,8 @@ EditFileFunction.prototype.getData = function(e) {
 
 EditFileFunction.prototype.getDataUri = function(e) {
     var t = document.createElement("canvas");
-    t.height = image.naturalHeight;
-    t.width = image.naturalWidth;
+    t.height = e.naturalHeight;
+    t.width = e.naturalWidth;
     t.getContext("2d").drawImage(image, 0, 0);
     return t.toDataURL("image/jpeg");
 };
