@@ -2,11 +2,11 @@ $(function () {
     var fileApi = new FileApi(),
         originalMediaObject = null,
         originalBlobKey = null,
-        id = null,
+        editingData = null,
         fileMediaUpdated = false;
 
-    setLoading = function(visible) {
-        if(visible) {
+    setLoading = function (visible) {
+        if (visible) {
             $(".loading-block").show();
         } else {
             $(".loading-block").hide();
@@ -34,11 +34,11 @@ $(function () {
 
         editButton.addEventListener("click", function () {
             originalBlobKey = data.blob_key;
-            id = data.id || data.key;
+            editingData = data;
             openEditWindow(data);
         });
 
-        shareButton.addEventListener("click", function(){
+        shareButton.addEventListener("click", function () {
             shareFile(data.id);
         });
 
@@ -93,11 +93,11 @@ $(function () {
         });
     }
 
-    getFileEditFunctions = function(file) {
+    getFileEditFunctions = function (file) {
         var editFunctions = [];
-        $.each(EDIT_FUNCTIONS, function(){
-            if(!this.applicableFileTypes || this.applicableFileTypes.indexOf(file.file_type) !== -1){
-                if(!this.applicableExtensions || this.applicableExtensions.indexOf(file.extension) !== -1){
+        $.each(EDIT_FUNCTIONS, function () {
+            if (!this.applicableFileTypes || this.applicableFileTypes.indexOf(file.file_type) !== -1) {
+                if (!this.applicableExtensions || this.applicableExtensions.indexOf(file.extension) !== -1) {
                     editFunctions.push(this);
                 }
             }
@@ -106,16 +106,16 @@ $(function () {
         return editFunctions;
     }
 
-    getFileAttributes = function(attributes, id){
+    getFileAttributes = function (attributes, id) {
         var editInformationAttrs = [];
         for (var attribute in attributes) {
             if (attributes.hasOwnProperty(attribute)) {
                 var inputValue = document.createElement("div"),
                     input = attributes[attribute].getInputElement(id),
                     label = attributes[attribute].getLabelElement(id);
-                
+
                 input.className = "form-control";
-                
+
                 inputValue.appendChild(label);
                 inputValue.appendChild(input);
 
@@ -141,27 +141,30 @@ $(function () {
         attributeElements = getFileAttributes(attributes, "edit-information");
         fileEditFunctions = getFileEditFunctions(element);
 
-        $.each(attributeElements, function(){
+        $.each(attributeElements, function () {
             informationBlock.appendChild(this);
         });
-        $.each(fileEditFunctions, function(){
+        $.each(fileEditFunctions, function () {
             editActionsBlock.appendChild(this.displayableElement());
         });
 
-        $(".file-function").click(function(){
+        $(".file-function").click(function () {
             var editFunction,
                 that = this;
 
-            $.each(fileEditFunctions, function(){
-                if(this.id === that.id){
+            $.each(fileEditFunctions, function () {
+                if (this.id === that.id) {
                     editFunction = this;
                     return false;
                 }
             });
 
-            if(editFunction){
-                editFunction.fire(originalMediaObject, function(data){
-                    editFunction.replaceImageFile("edit-media", "jpg", data);
+            if (editFunction) {
+                editFunction.fire(originalMediaObject, function (data) {
+                    editFunction.replaceImageFile("edit-media", data.extension, data);
+                    fileMediaUpdated = true;
+                }, function (data) {
+                    toastr.error("Failed to apply " + editFunction.name + " to the file.", "Error");
                 });
             }
         });
@@ -179,22 +182,25 @@ $(function () {
         editActionsBlock.innerHTML = "";
 
         originalMediaObject = null;
+        originalBlobKey = null;
+        editingData = null;
+        fileMediaUpdated = false;
     }
 
-    getFilters = function() {
+    getFilters = function () {
         var DELIMITER = "-",
             filterInputs = $(".sidebar").find("input"),
             filterData = {};
 
-        $.each(filterInputs, function(){
+        $.each(filterInputs, function () {
             // Split by delimiter to find out the category of data
             var filterCategory = this.name.split(DELIMITER)[0],
                 filterItem = this.name.split(DELIMITER)[1];
 
-            switch(this.type) {
+            switch (this.type) {
                 case "checkbox":
-                    if(this.checked){
-                        if(filterData[filterCategory]){
+                    if (this.checked) {
+                        if (filterData[filterCategory]) {
                             filterData[filterCategory] += "," + filterItem;
                         } else {
                             filterData[filterCategory] = filterItem;
@@ -202,8 +208,8 @@ $(function () {
                     }
                     break;
                 case "text":
-                    if(this.value) {
-                        filterData[filterItem] = this.value; 
+                    if (this.value) {
+                        filterData[filterItem] = this.value;
                     }
                     break;
             }
@@ -214,12 +220,12 @@ $(function () {
 
     convertFormToJSON = function (form) {
         var array = $(form).serializeArray(),
-            json = {}
+            json = {},
             isFieldToUpdate = false;
         json.metadata = {};
 
         $.each(array, function () {
-            if(this.value){
+            if (this.value) {
                 if (this.name.substr(0, "metadata-".length) === "metadata-") {
                     var attrName = this.name.split("metadata-")[1];
                     json.metadata[attrName] = this.value;
@@ -240,7 +246,7 @@ $(function () {
         fileApi.getFiles($.param(getFilters()), function (data) {
             $(".grid").html("");
 
-            if(data && data.length > 0){
+            if (data && data.length > 0) {
                 $.each(data, function () {
                     addElement(this);
                 });
@@ -252,17 +258,17 @@ $(function () {
         });
     }
 
-    shareFile = function(id) {
-        fileApi.shareFile(id, function(data) {
+    shareFile = function (id) {
+        fileApi.shareFile(id, function (data) {
             var url = fileApi.editUrl + "/" + data.id;
-            toastr.success("Share from: <input onclick='this.select();' class='form-control' type='url' value='" + url +"' />", "Share Success", {
+            toastr.success("Share from: <input onclick='this.select();' class='form-control' type='url' value='" + url + "' />", "Share Success", {
                 timeOut: 0,
                 extendedTimeOut: 0,
                 closeButton: true,
                 onclick: null,
                 tapToDismiss: false
             });
-        }, function(data) {
+        }, function (data) {
             toastr.error("Unable to create a shared file with error: <br />" + data + " <br />Please try again.", "Error");
         });
     }
@@ -277,91 +283,67 @@ $(function () {
         });
     }
 
-    sendFile = function(file, callback) {
-        var blob = dataURLtoBlob(getDataUri(file)),
+    sendFile = function (file, callback) {
+        var dataUrl = EditFileFunction.prototype.getDataUri(file),
+            blob = EditFileFunction.prototype.dataUrlToBlob(dataUrl),
             formData = new FormData();
-        
+
         formData.append("file", blob);
         formData.append("blob_key", originalBlobKey);
-        
-        getUploadUrl(function(url){
+
+        getUploadUrl(function (url) {
             $.ajax({
                 url: url,
                 data: formData,
                 type: "POST",
                 contentType: false,
                 processData: false,
-                beforeSend: function(){
+                beforeSend: function () {
                     setLoading(true);
                 },
-                success: function(data) {
+                success: function (data) {
                     callback();
                 },
-                error: function(data) {
+                error: function (data) {
                     toastr.error("Failed to uploaded update file with error: " + data, "Error");
                 },
-                complete: function() {
+                complete: function () {
                     setLoading(false);
                 }
             })
         });
     }
 
-    editImage = function(formData, url) {
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
-            beforeSend: function(){
-                setLoading(true);
-                $(".image-btn").prop("disabled", true);
-                $("#edit-save-btn").prop("disabled", true);
-            },
-            success: function(data) {
-                var updatedImage = document.createElement("img");
-                updatedImage.id = "edit-media";
-                updatedImage.onload = function() {
-                    $("#edit-media").replaceWith(updatedImage);
-                }
-                updatedImage.src = "data:image/jpeg;base64," + decodeURIComponent(data);
-            },
-            error: function(data) {
-                $("#edit-modal-body").prepend("Error with watermark: " + data.responseText);
-            },
-            complete:function(){
-                setLoading(false);
-                $(".image-btn").prop("disabled", false);
-                $("#edit-save-btn").prop("disabled", false);
-            }
-        });
-    }
+    updateFile = function () {
+        var form = $("#edit-information"),
+            data = convertFormToJSON(form);
 
-    updateFile = function() {
-        var data = convertFormToJSON($("#edit-information"));
-        if(data){
-            fileApi.updateFileData(id, data, function(){
+        if (data) {
+            fileApi.updateFileData(editingData.id, data, function () {
                 $("#edit-modal").modal("hide");
                 toastr.success("Updated file");
                 listItems();
             });
+        } else {
+            $("#edit-modal").modal("hide");
+            toastr.success("Updated file");
+            listItems();
         }
     }
 
     $("#edit-modal").on("hidden.bs.modal", clearEditWindow);
 
-    $("#edit-save-btn").on("click", function(){
+    $("#edit-save-btn").on("click", function () {
         var file = document.getElementById("edit-media");
 
-        if(fileMediaUpdated){
+        if (fileMediaUpdated) {
             sendFile(file, updateFile);
         } else {
             updateFile();
         }
     });
 
-    $("#filter-btn").on("click", function(){
+    $("#filter-btn").on("click", function () {
         listItems();
     });
 

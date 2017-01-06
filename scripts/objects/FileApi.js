@@ -2,7 +2,7 @@ if (typeof $ === "undefined" && typeof jQuery === "undefined") {
     throw new Error("FileApi requires jQuery");
 }
 
-var FileApi = function (options) {
+var FileApi = function () {
     this.listUrl = window.location.protocol + "//" + window.location.host + "/files";
     this.addUrl = window.location.protocol + "//" + window.location.host + "/files";
     this.shareUrl = window.location.protocol + "//" + window.location.host + "/share";

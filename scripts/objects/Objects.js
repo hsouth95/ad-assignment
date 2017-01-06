@@ -2,7 +2,7 @@ if (typeof $ === "undefined" && typeof jQuery === "undefined") {
     throw new Error("FileApi requires jQuery");
 }
 
-var FileApi = function(e) {
+var FileApi = function() {
     this.listUrl = window.location.protocol + "//" + window.location.host + "/files";
     this.addUrl = window.location.protocol + "//" + window.location.host + "/files";
     this.shareUrl = window.location.protocol + "//" + window.location.host + "/share";
@@ -212,7 +212,6 @@ var EditFileFunction = function(e) {
     this.id = e.id;
     this.url = e.url;
     this.name = e.name;
-    this.event = e.event;
     this.applicableFileTypes = e.fileTypes || null;
     this.applicableExtensions = e.extensions || null;
     this.displayableElement = e.displayableElement || null;
@@ -233,23 +232,26 @@ EditFileFunction.prototype.getDataUri = function(e) {
     var t = document.createElement("canvas");
     t.height = e.naturalHeight;
     t.width = e.naturalWidth;
-    t.getContext("2d").drawImage(image, 0, 0);
+    t.getContext("2d").drawImage(e, 0, 0);
     return t.toDataURL("image/jpeg");
 };
 
 EditFileFunction.prototype.dataUrlToBlob = function(e) {
-    var t = dataurl.split(","), i = t[0].match(/:(.*?);/)[1], a = atob(t[1]), n = a.length, o = new Uint8Array(n);
+    var t = e.split(","), i = t[0].match(/:(.*?);/)[1], a = atob(t[1]), n = a.length, l = new Uint8Array(n);
     while (n--) {
-        o[n] = a.charCodeAt(n);
+        l[n] = a.charCodeAt(n);
     }
-    return new Blob([ o ], {
+    return new Blob([ l ], {
         type: i
     });
 };
 
-EditFileFunction.prototype.fire = function(e, t) {
-    var i = this.getData(e);
-    this.event(i, this.url, t);
+EditFileFunction.prototype.fire = function(e, t, i) {
+    var a = this.getData(e);
+    EditFileFunction.prototype.editFile(a, this.url, {
+        success: t,
+        error: i
+    });
 };
 
 EditFileFunction.prototype.editFile = function(e, t, i) {
@@ -282,18 +284,18 @@ var EDIT_FUNCTIONS = [ new EditFileFunction({
     name: "Watermark",
     fileTypes: [ "image" ],
     extensions: [ "jpg" ],
-    event: function(e, t, i) {
-        EditFileFunction.prototype.editFile(e, t, {
-            success: i,
-            error: function(e) {
-                alert(e);
-            }
-        });
+    extraData: function(e) {
+        var t = $("#watermark-text").val();
+        if (t) {
+            e.append("value", t);
+        }
+        return e;
     },
     displayableElement: function() {
         var e = document.createElement("div"), t = document.createElement("span"), i = document.createElement("button"), a = document.createElement("input");
         e.className = "input-group";
         t.className = "input-group-btn";
+        a.id = "watermark-text";
         a.className = "form-control";
         a.type = "text";
         a.placeholder = "Enter watermark text";
@@ -304,6 +306,20 @@ var EDIT_FUNCTIONS = [ new EditFileFunction({
         t.appendChild(i);
         e.appendChild(a);
         e.appendChild(t);
+        return e;
+    }
+}), new EditFileFunction({
+    id: "greyscale",
+    url: "/greyscale/base64",
+    name: "Greyscale",
+    fileTypes: [ "image" ],
+    extensions: [ "png" ],
+    displayableElement: function() {
+        var e = document.createElement("button");
+        e.innerHTML = this.name;
+        e.id = this.id;
+        e.className = "btn btn-default file-function";
+        e.type = "button";
         return e;
     }
 }) ];

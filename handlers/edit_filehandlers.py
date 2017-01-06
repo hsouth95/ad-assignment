@@ -18,11 +18,16 @@ class WaterMarkHandler(basehandlers.BaseHandler):
             file_url = self.request.get("url")
             file_value = urlfetch.fetch(file_url).content
         else:
-            self.error(400)
             self.response.write("No image given")
+            self.error(400)
             return
         
         value = self.request.get("value")
+
+        if not value:
+            self.response.write("No value given")
+            self.error(400)
+            return
 
         temp_buff = StringIO.StringIO(file_value)
 

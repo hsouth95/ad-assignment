@@ -5,15 +5,16 @@ var EDIT_FUNCTIONS = [
         name: "Watermark",
         fileTypes: ["image"],
         extensions: ["jpg"],
-        event: function(data, url, callback){
-            EditFileFunction.prototype.editFile(data, url, {
-                success: callback,
-                error: function(data){
-                    alert(data);
-                }
-            });
+        extraData: function(data){
+            var value = $("#watermark-text").val();
+
+            if(value){
+                data.append("value", value);
+            }
+
+            return data;
         },
-        displayableElement: function(){
+        displayableElement: function () {
             var div = document.createElement("div"),
                 span = document.createElement("span"),
                 button = document.createElement("button"),
@@ -21,7 +22,8 @@ var EDIT_FUNCTIONS = [
 
             div.className = "input-group";
             span.className = "input-group-btn";
-            
+
+            textBox.id = "watermark-text";
             textBox.className = "form-control";
             textBox.type = "text";
             textBox.placeholder = "Enter watermark text";
@@ -29,7 +31,7 @@ var EDIT_FUNCTIONS = [
             button.innerHTML = this.name;
             button.id = this.id;
             button.className = "btn btn-default file-function";
-            button.type="button";
+            button.type = "button";
 
             span.appendChild(button);
 
@@ -37,6 +39,22 @@ var EDIT_FUNCTIONS = [
             div.appendChild(span);
 
             return div;
+        }
+    }),
+    new EditFileFunction({
+        id: "greyscale",
+        url: "/greyscale/base64",
+        name: "Greyscale",
+        fileTypes: ["image"],
+        extensions: ["png"],
+        displayableElement: function () {
+            var button = document.createElement("button");
+            button.innerHTML = this.name;
+            button.id = this.id;
+            button.className = "btn btn-default file-function";
+            button.type = "button";
+
+            return button;
         }
     })
 ];

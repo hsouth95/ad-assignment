@@ -151,7 +151,7 @@ def build_query(request):
     q = FileModel.query()
 
     if request.get("id") and request.get("id") is not None:
-        q = q.filter(FileModel.id == long(request.get("id")))
+        q = q.filter(FileModel.key == ndb.Key('FileModel', long(request.get("id"))))
         return q
     
     if request.get("name") and request.get("name") is not None:
