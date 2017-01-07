@@ -47,7 +47,7 @@ class FileHandler(basehandlers.BaseHandler):
         if self.logged_in:
             user_key = self.current_user.key
 
-            files = build_query(self.request).filter(FileModel.user == str(user_key.id())).order(-FileModel.created)
+            files = __build_query(self.request).filter(FileModel.user == str(user_key.id())).order(-FileModel.created)
 
             serialized_files = {}
             serialized_files["files"] = [x.get_json() for x in files]
@@ -151,7 +151,12 @@ class FileHandler(basehandlers.BaseHandler):
     def __set_entity_attrs(entity, data):
         """Updates an Entity based on the attributes of it and the ndb.Model
 
-        
+            Args:
+                entity: The ndb.Model that is being updated
+                data: The data the entity is being updated with    
+            
+            Returns:
+                The updated Entity provided
         """
         for key in data:
             if hasattr(entity, key):
@@ -166,22 +171,40 @@ class FileHandler(basehandlers.BaseHandler):
             
         return entity
 
-    @classmethod
-    def __set_metadata(self, file_model, metadata): 
+    @staticmethod
+    def __set_metadata(file_model, metadata):
+        """Sets the FileModel Metadata based on the type of Metadata
+
+            Args:
+                file_model: The FileModel having the metadata set
+                metadata: The Metadata being added to the FileModel
+
+            Returns:
+                The updated FileModel
+        """
         file_type = file_model.file_type
         if file_type == "image":
-            file_model.image_metadata = self.__get_metadata(metadata, ImageMetadata)
+            file_model.image_metadata = __get_metadata(metadata, ImageMetadata)
         elif file_type == "audio":
-            file_model.audio_metadata = self.__get_metadata(metadata, AudioMetadata)
+            file_model.audio_metadata = __get_metadata(metadata, AudioMetadata)
         elif file_type == "video":
-            file_model.video_metadata = self.__get_metadata(metadata, VideoMetadata)
+            file_model.video_metadata = __get_metadata(metadata, VideoMetadata)
         else:
             raise ValueError("'file_type' is not the in the correct range")
 
         return file_model
 
-    @classmethod
-    def __get_metadata(self, obj, metadata):
+    @staticmethod
+    def __get_metadata(obj, metadata):
+        """Builds the Metadata object from the data provided
+
+            Args:
+                obj: The data being read
+                metadata: The type of metadata e.g. pass (.., ImageMetadata)
+
+            Returns:
+                The populated Metadata
+        """
         if isinstance(obj, dict) is False:
             return None
 
@@ -203,36 +226,47 @@ class FileHandler(basehandlers.BaseHandler):
 
         return value
 
-@staticmethod
-def build_query(request):
-    """Builds a ndb query for the FileModel from the 
-    parameters given by a request
-    """
-    q = FileModel.query()
+    @staticmethod
+    def __build_query(request):
+        """Builds a ndb query for the FileModel from the parameters given by a request
 
-    if request.get("id") and request.get("id") is not None:
-        q = q.filter(FileModel.key == ndb.Key('FileModel', long(request.get("id"))))
+            Args:
+                request: The webapp2 request holding the filter data
+
+            Returns:
+                A ndb.Query object to fetch from
+        """
+        q = FileModel.query()
+
+        if request.get("id") and request.get("id") is not None:
+            q = q.filter(FileModel.key == ndb.Key('FileModel', long(request.get("id"))))
+            return q
+        
+        if request.get("name") and request.get("name") is not None:
+            # GAE does not have partial string matching so name must be a full match
+            q = q.filter(FileModel.name == request.get("name"))
+        
+        if request.get("extensions") and request.get("extensions") is not None:
+            extensions = request.get("extensions").split(",")
+
+            q = q.filter(FileModel.extension.IN([x for x in extensions]))
+        
+        if request.get("file_types") and request.get("file_types") is not None:
+            file_types = request.get("file_types").split(",")
+
+            q = q.filter(FileModel.file_type.IN([x for x in file_types]))
+
         return q
-    
-    if request.get("name") and request.get("name") is not None:
-        # GAE does not have partial string matching so name must be a full match
-        q = q.filter(FileModel.name == request.get("name"))
-    
-    if request.get("extensions") and request.get("extensions") is not None:
-        extensions = request.get("extensions").split(",")
-
-        q = q.filter(FileModel.extension.IN([x for x in extensions]))
-    
-    if request.get("file_types") and request.get("file_types") is not None:
-        file_types = request.get("file_types").split(",")
-
-        q = q.filter(FileModel.file_type.IN([x for x in file_types]))
-
-    return q
 
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, basehandlers.BaseHandler):
+    """Handles the serving of files from the BlobStore"""
     @classmethod
     def get(self, file_key):
+        """Retrieves the File from the BlobStore
+        
+            Args:
+                file_key: The BlobKey ID of the File
+        """
         if not blobstore.get(file_key):
             self.error(404)
         else:
@@ -240,13 +274,22 @@ class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, basehandlers.
             return
 
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, basehandlers.BaseHandler):
+    """Handles the uploading of the Files to the BlobStore"""
     @classmethod
     def get(self):
+        """Retrieves a URL to allow for uploading to the BlobStore"""
         upload_url = blobstore.create_upload_url('/upload')
         self.response.out.write(upload_url)
     
     @classmethod
     def post(self):
+        """Creates or updates a File in the BlobStore
+
+            Note:
+                Will delete the old File in the BlobStore if updated 
+                because it is impossible to update a File and therefore
+                you have to replace it
+        """
         if self.logged_in:
             upload = self.get_uploads()[0]
             value_key = str(upload.key())
