@@ -6,11 +6,12 @@ var EditFileFunction = function (options) {
     this.applicableExtensions = options.extensions || null;
     this.displayableElement = options.displayableElement || null;
     this.extraData = options.extraData || null;
+    this.getUpdatedData = options.getUpdatedData || null;
 }
 
 EditFileFunction.prototype.getData = function (file) {
-    var formData = new FormData();
-    dataUrl = this.getDataUri(file),
+    var formData = new FormData(),
+        dataUrl = this.getDataUri(file),
         blob = this.dataUrlToBlob(dataUrl);
 
     formData.append("file", blob);

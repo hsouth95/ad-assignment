@@ -236,12 +236,12 @@ var EditFileFunction = function(e) {
     this.applicableExtensions = e.extensions || null;
     this.displayableElement = e.displayableElement || null;
     this.extraData = e.extraData || null;
+    this.getUpdatedData = e.getUpdatedData || null;
 };
 
 EditFileFunction.prototype.getData = function(e) {
-    var t = new FormData();
-    dataUrl = this.getDataUri(e), blob = this.dataUrlToBlob(dataUrl);
-    t.append("file", blob);
+    var t = new FormData(), i = this.getDataUri(e), a = this.dataUrlToBlob(i);
+    t.append("file", a);
     if (this.extraData) {
         t = this.extraData(t);
     }
@@ -330,11 +330,65 @@ var EDIT_FUNCTIONS = [ new EditFileFunction({
         return e;
     }
 }), new EditFileFunction({
+    id: "resize",
+    url: "/resize/base64",
+    name: "Resize",
+    fileTypes: [ "image" ],
+    extensions: [ "jpg", "png" ],
+    extraData: function(e) {
+        var t = $("#resize-height").val(), i = $("#resize-width").val();
+        if (t) {
+            e.append("height", t);
+        }
+        if (i) {
+            e.append("width", i);
+        }
+        return e;
+    },
+    getUpdatedData: function() {
+        var e = $("#resize-height").val(), t = $("#resize-width").val(), i = [];
+        if (e) {
+            i.push({
+                name: "metadata-height",
+                value: e
+            });
+        }
+        if (e) {
+            i.push({
+                name: "metadata-width",
+                value: t
+            });
+        }
+        return i;
+    },
+    displayableElement: function() {
+        var e = document.createElement("div"), t = document.createElement("span"), i = document.createElement("button"), a = document.createElement("input"), n = document.createElement("input");
+        e.className = "input-group";
+        t.className = "input-group-btn";
+        a.id = "resize-height";
+        a.className = "form-control";
+        a.type = "text";
+        a.placeholder = "Enter file height";
+        n.id = "resize-width";
+        n.className = "form-control";
+        n.type = "text";
+        n.placeholder = "Enter file width";
+        i.innerHTML = this.name;
+        i.id = this.id;
+        i.className = "btn btn-default file-function";
+        i.type = "button";
+        t.appendChild(i);
+        e.appendChild(n);
+        e.appendChild(a);
+        e.appendChild(t);
+        return e;
+    }
+}), new EditFileFunction({
     id: "greyscale",
     url: "/greyscale/base64",
     name: "Greyscale",
     fileTypes: [ "image" ],
-    extensions: [ "png" ],
+    extensions: [ "png", "jpg" ],
     displayableElement: function() {
         var e = document.createElement("button");
         e.innerHTML = this.name;

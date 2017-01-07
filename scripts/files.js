@@ -194,6 +194,10 @@ $(function () {
 
             if (editFunction) {
                 editFunction.fire(originalMediaObject, function (data) {
+                    if (editFunction.getUpdatedData) {
+                        updateSelectedFields(editFunction.getUpdatedData());
+                    }
+
                     editFunction.replaceImageFile("edit-media", data.extension, data);
                     fileMediaUpdated = true;
                 }, function (data) {
@@ -203,6 +207,16 @@ $(function () {
         });
 
         $("#edit-modal").modal({ show: true });
+    }
+
+    updateSelectedFields = function (data) {
+        $.each(data, function () {
+            var field = $("#edit-information-" + this.name);
+
+            if (field) {
+                field.val(this.value);
+            }
+        });
     }
 
     clearEditWindow = function () {
@@ -251,8 +265,16 @@ $(function () {
         return filterData;
     }
 
+    getSerializedFormArray = function (element) {
+        var disabled = element.find(':input:disabled').removeAttr('disabled');
+        var serialized = element.serializeArray();
+        disabled.attr('disabled', 'disabled');
+
+        return serialized;
+    }
+
     convertFormToJSON = function (form) {
-        var array = $(form).serializeArray(),
+        var array = getSerializedFormArray($(form)),
             json = {},
             isFieldToUpdate = false;
         json.metadata = {};

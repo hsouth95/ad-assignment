@@ -70,6 +70,47 @@ class WaterMarkHandler(basehandlers.BaseHandler):
         self.response.headers["Content-Type"] = "image/" + im.format.lower()
         self.response.write(finished_image)
 
+class ResizeHandler(basehandlers.BaseHandler):
+    def post(self, response_type):
+        file_value = None
+        
+        if self.request.get("file"):
+            file_value = self.request.POST.get("file").file.read()
+        else:
+            self.error(400)
+            self.response.write("No image given")
+            return
+
+        temp_buff = StringIO.StringIO(file_value)
+
+        im = Image.open(temp_buff)
+
+        width, height = im.size
+
+        requested_height = self.request.get("height")
+        requested_width = self.request.get("width")
+
+        if requested_height and requested_height.isdigit() and requested_height >= 0:
+            height = requested_height
+
+        if requested_width and requested_width.isdigit() and requested_width >= 0:
+            width = requested_width
+
+        updatedImage = im.resize((int(width), int(height)), Image.ANTIALIAS) 
+
+        output = StringIO.StringIO()
+        updatedImage.save(output, im.format)
+        finished_image = output.getvalue()
+        
+        # Check to see if image response should be in a particular format
+        if response_type:
+            if response_type == "base64":
+                self.response.write(base64.b64encode(finished_image))
+                return
+            
+        self.response.headers["Content-Type"] = "image/" + im.format.lower()
+        self.response.write(finished_image)
+
 class GreyscaleHandler(basehandlers.BaseHandler):
     def post(self, response_type):
         file_value = None
@@ -84,10 +125,10 @@ class GreyscaleHandler(basehandlers.BaseHandler):
         temp_buff = StringIO.StringIO(file_value)
 
         im = Image.open(temp_buff)
-        im = im.convert("L")
+        updated_image = im.convert("L")
 
         output = StringIO.StringIO()
-        im.save(output, "PNG")
+        updated_image.save(output, im.format)
         finished_image = output.getvalue()
         
         # Check to see if image response should be in a particular format

@@ -56,7 +56,7 @@ $(function () {
 
         if (editFunction) {
             setButtonLoading(true);
-            editFunction.fire(document.getElementById("edit-file"), function (data) {
+            editFunction.fire(document.getElementById("edit-file"), function (data, updatedData) {
                 editFunction.replaceImageFile("edit-file", file.extension, data);
                 fileMediaUpdated = true;
                 setButtonLoading(false);

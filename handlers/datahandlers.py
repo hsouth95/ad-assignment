@@ -48,20 +48,20 @@ class FileHandler(basehandlers.BaseHandler):
         #TODO add collab check
         if file_model and file_model.user == str(self.current_user.key.id()):
             data = json.loads(self.request.body)
-            metadata = data["metadata"] if hasattr(data, "metadata") else None
+            try:
+                metadata = data["metadata"]
+            except AttributeError:
+                metadata = None
             
-            if metadata:
-                del data["metadata"]
-
-            file_model = self.__set_entity_attrs(file_model, data)
+            file_model = self.__set_entity_attrs(file_model, data, FileModel)
 
             if metadata:
-                if file_model.file_type is "image":
-                    file_model.image_metadata = self.__set_entity_attrs(file_model.image_metadata, metadata)
-                elif file_model.file_type is "audio":
-                    file_model.audio_metadata = self.__set_entity_attrs(file_model.audio_metadata, metadata)
-                elif file_model.file_type is "video":
-                    file_model.video_metadata = self.__set_entity_attrs(file_model.video_metadata, metadata)
+                if file_model.file_type == "image":
+                    file_model.image_metadata = self.__set_entity_attrs(file_model.image_metadata, metadata, ImageMetadata)
+                elif file_model.file_type == "audio":
+                    file_model.audio_metadata = self.__set_entity_attrs(file_model.audio_metadata, metadata, AudioMetadata)
+                elif file_model.file_type == "video":
+                    file_model.video_metadata = self.__set_entity_attrs(file_model.video_metadata, metadata, VideoMetadata)
             file_model.put()
 
     def delete(self, file_id):
@@ -112,10 +112,17 @@ class FileHandler(basehandlers.BaseHandler):
             self.response.write("Must be logged in")
             self.error(400)
 
-    def __set_entity_attrs(self, entity, data):
+    def __set_entity_attrs(self, entity, data, metadata_class):
         for key in data:
             if hasattr(entity, key):
-                setattr(entity, key, data[key])
+                attribute = entity._properties[key]
+                obj_value = data[key]
+                if isinstance(attribute, ndb.IntegerProperty):
+                    obj_value = int(obj_value)
+                elif isinstance(attribute, ndb.FloatProperty):
+                    obj_value = float(obj_value)
+                
+                setattr(entity, key, obj_value)
             
         return entity
 
