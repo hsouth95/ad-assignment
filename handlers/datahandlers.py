@@ -47,7 +47,7 @@ class FileHandler(basehandlers.BaseHandler):
         if self.logged_in:
             user_key = self.current_user.key
 
-            files = __build_query(self.request).filter(FileModel.user == str(user_key.id())).order(-FileModel.created)
+            files = FileHandler.__build_query(self.request).filter(FileModel.user == str(user_key.id())).order(-FileModel.created)
 
             serialized_files = {}
             serialized_files["files"] = [x.get_json() for x in files]
@@ -76,15 +76,15 @@ class FileHandler(basehandlers.BaseHandler):
             except AttributeError:
                 metadata = None
             
-            file_model = self.__set_entity_attrs(file_model, data, FileModel)
+            file_model = FileHandler.__set_entity_attrs(file_model, data, FileModel)
 
             if metadata:
                 if file_model.file_type == "image":
-                    file_model.image_metadata = __set_entity_attrs(file_model.image_metadata, metadata)
+                    file_model.image_metadata = FileHandler.__set_entity_attrs(file_model.image_metadata, metadata)
                 elif file_model.file_type == "audio":
-                    file_model.audio_metadata = __set_entity_attrs(file_model.audio_metadata, metadata)
+                    file_model.audio_metadata = FileHandler.__set_entity_attrs(file_model.audio_metadata, metadata)
                 elif file_model.file_type == "video":
-                    file_model.video_metadata = __set_entity_attrs(file_model.video_metadata, metadata)
+                    file_model.video_metadata = FileHandler.__set_entity_attrs(file_model.video_metadata, metadata)
             file_model.put()
     
     @classmethod
@@ -136,7 +136,7 @@ class FileHandler(basehandlers.BaseHandler):
             )
 
             try:
-                file_model = self.__set_metadata(file_model, metadata)
+                file_model = FileHandler.__set_metadata(file_model, metadata)
             except ValueError:
                 self.response.write("File metadata was invalid")
                 self.error(400)
@@ -184,11 +184,11 @@ class FileHandler(basehandlers.BaseHandler):
         """
         file_type = file_model.file_type
         if file_type == "image":
-            file_model.image_metadata = __get_metadata(metadata, ImageMetadata)
+            file_model.image_metadata = FileHandler.__get_metadata(metadata, ImageMetadata)
         elif file_type == "audio":
-            file_model.audio_metadata = __get_metadata(metadata, AudioMetadata)
+            file_model.audio_metadata = FileHandler.__get_metadata(metadata, AudioMetadata)
         elif file_type == "video":
-            file_model.video_metadata = __get_metadata(metadata, VideoMetadata)
+            file_model.video_metadata = FileHandler.__get_metadata(metadata, VideoMetadata)
         else:
             raise ValueError("'file_type' is not the in the correct range")
 
