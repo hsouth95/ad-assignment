@@ -4,12 +4,23 @@ import base64
 
 from google.appengine.api import urlfetch
 from PIL import Image, ImageFilter, ImageDraw, ImageFont
-from PIL.ExifTags import TAGS
 import basehandlers
 
 class WaterMarkHandler(basehandlers.BaseHandler):
-    @classmethod
+    """Handles the watermarking of an image
+
+        Attributes:
+            FONT_TYPE (str): Font file to use for the watermark
+    """
+    FONT_TYPE = "Promocyja096.ttf"
+
+
     def post(self, response_type):
+        """Updates a given image with a watermark of a given value
+
+            Args:
+                response_type: The type of response it expects e.g. Base64
+        """
         file_value = None
         file_url = None
         
@@ -39,21 +50,7 @@ class WaterMarkHandler(basehandlers.BaseHandler):
             self.response.write("Only JPEG formats are currently supported")
             return
 
-        # Starting font size
-        fontsize = 1  
-
-        # Portion of image width text width will be
-        img_fraction = 0.40
-
-        # Increment image size until it fills required width of picture
-        font = ImageFont.truetype("Promocyja096.ttf", fontsize)
-        while font.getsize(value)[0] < img_fraction * im.size[0]:
-            # iterate until the text size is just larger than the criteria
-            fontsize += 1
-            font = ImageFont.truetype("Promocyja096.ttf", fontsize)
-
-
-        font = ImageFont.truetype("Promocyja096.ttf", fontsize)
+        font = WaterMarkHandler.__get_font(value, im)
         d = ImageDraw.Draw(im)
 
         d.text((10, 10), value, fill=(255, 255, 255, 128), font=font)
@@ -71,9 +68,41 @@ class WaterMarkHandler(basehandlers.BaseHandler):
         self.response.headers["Content-Type"] = "image/" + im.format.lower()
         self.response.write(finished_image)
 
+    @staticmethod
+    def __get_font(value, im):
+        """Retrieves the font for the Watermark with a flexible size
+
+            Args:
+                value: The text value being watermarked
+                im: The image being watermarked
+
+            Returns:
+                A font to be used in drawing on a File
+        """
+        # Starting font size
+        fontsize = 1  
+
+        # Portion of image width text width will be
+        img_fraction = 0.40
+
+        # Increment image size until it fills required width of picture
+        font = ImageFont.truetype(WaterMarkHandler.FONT_TYPE, fontsize)
+        while font.getsize(value)[0] < img_fraction * im.size[0]:
+            # iterate until the text size is just larger than the criteria
+            fontsize += 1
+            font = ImageFont.truetype(WaterMarkHandler.FONT_TYPE, fontsize)
+
+        return ImageFont.truetype(WaterMarkHandler.FONT_TYPE, fontsize)
+
 class ResizeHandler(basehandlers.BaseHandler):
+    """Handles the resizing of an Image"""
     @classmethod
     def post(self, response_type):
+        """Updates a given image to be of a given dimensions
+
+            Args:
+                response_type: The type of response it expects e.g. Base64
+        """
         file_value = None
         
         if self.request.get("file"):
@@ -114,8 +143,14 @@ class ResizeHandler(basehandlers.BaseHandler):
         self.response.write(finished_image)
 
 class GreyscaleHandler(basehandlers.BaseHandler):
+    """Handles the greyscaling of an image"""
     @classmethod
     def post(self, response_type):
+        """Updates a given image to be greyscaled
+
+            Args:
+                response_type: The type of response it expects e.g. Base64
+        """
         file_value = None
         
         if self.request.get("file"):
