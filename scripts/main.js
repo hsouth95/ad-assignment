@@ -69,7 +69,6 @@ $(function () {
         $(".drag-n-drop-content").html(uploadingFile.fileObject);
     }
 
-
     populateInformation = function () {
         var name = uploadingFile.data.name,
             extension = uploadingFile.data.name.split(".").slice(-1)[0];
@@ -96,12 +95,11 @@ $(function () {
         getServiceAttrs();
     }
 
-    getServiceAttrs = function(){
+    getServiceAttrs = function () {
         var formData = new FormData($("#file-form")[0]);
-        
-        switch(uploadingFile.data.file_type){
+
+        switch (uploadingFile.data.file_type) {
             case "image":
-                debugger;
                 getAuthor(formData);
                 break;
             case "audio":
@@ -109,17 +107,6 @@ $(function () {
             case "video":
                 break;
         }
-    }
-
-    /**
-     * Utility function to cancel the default behaviour of an event
-     * @param {Event} e - The event to cancel
-     */
-    cancel = function (e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-        return false;
     }
 
     /**
@@ -168,7 +155,7 @@ $(function () {
         $(".drag-n-drop-overlay").addClass("pointer");
 
         if (success) {
-            $(".drag-n-drop-content").html("<i class='fa fa-upload' aria-hidden='true'></i>&nbsp;Drag or pick a file to upload.");
+            $(".drag-n-drop-content").html("<i class='fa fa-upload' aria-hidden='true'></i>&nbsp;Pick a file to upload.");
             setUploadUrl(true);
         } else {
             $(".drag-n-drop-content").html("Opps! Something went wrong, please try again.");
@@ -209,7 +196,7 @@ $(function () {
                 success: function (data) {
                     postFileData(data.blob_key);
                 },
-                error: function(data) {
+                error: function (data) {
                     toastr.error("Failed to upload the file to the server.", "Error");
                 }
             });
@@ -257,7 +244,7 @@ $(function () {
         });
     }
 
-    getAuthor = function(formData, callback) {
+    getAuthor = function (formData, callback) {
         var url = "https://ws-media.appspot.com/photo/photometadata";
         $.ajax({
             url: url,
@@ -266,17 +253,17 @@ $(function () {
             contentType: false,
             processData: false,
             crossDomain: true,
-            success: function(data) {
-                if(data !== "Unable to derive data from the given file"){
+            success: function (data) {
+                if (data !== "Unable to derive data from the given file") {
                     alert(data);
-                    if(typeof callback === "function"){
+                    if (typeof callback === "function") {
                         callback();
                     }
                 } else {
                     toastr.warning("No camera details on file");
                 }
             },
-            error: function(data) {
+            error: function (data) {
                 toastr.warning("Error finding camera details");
             }
         });
@@ -286,17 +273,6 @@ $(function () {
         if (!fileSelected) {
             $("#file-picker").trigger("click");
         }
-    });
-    $("#file-picker-button").on("dragover", cancel);
-    $("#file-picker-button").on("dragenter", cancel);
-    $("#file-picker-button").on("drop", function (e) {
-        e = e || window.event;
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-
-        pickFile(e.originalEvent);
-        return false;
     });
 
     $("#submit").on("click", function (e) {
@@ -310,7 +286,7 @@ $(function () {
         }
     });
 
-    document.getElementById("file-picker").onchange = pickFile;
+    $("#file-picker").on("change", pickFile);
 
     /*
      * To prevent DDOS attempts, Google has a 10-minute limit on the upload URL

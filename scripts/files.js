@@ -367,12 +367,15 @@ $(function () {
     $("#edit-modal").on("hidden.bs.modal", clearEditWindow);
 
     $("#edit-save-btn").on("click", function () {
-        var file = document.getElementById("edit-media");
+        var isConfirmed = window.confirm("Are you sure you want to save this file? It will not be revertable");
+        if (isConfirmed) {
+            var file = document.getElementById("edit-media");
 
-        if (fileMediaUpdated) {
-            sendFile(file, updateFile);
-        } else {
-            updateFile();
+            if (fileMediaUpdated) {
+                sendFile(file, updateFile);
+            } else {
+                updateFile();
+            }
         }
     });
 

@@ -36,11 +36,11 @@ FileApi.prototype.deleteFile = function(e, t, i) {
         url: a,
         type: "DELETE",
         contentType: "application/json",
-        success: function(e) {
-            toastr.success("File deleted");
+        success: function() {
+            t();
         },
         error: function(e) {
-            toastr.error("File not deleted");
+            i(e);
         }
     });
 };

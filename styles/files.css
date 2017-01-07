@@ -85,6 +85,10 @@
     margin: 50px auto;
 }
 
+.double-bounce1, .double-bounce2  {
+  background-color: #FF917A; 
+}
+
 .edit-modal {
   border-radius: 0;
 }

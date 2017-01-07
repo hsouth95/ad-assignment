@@ -19,6 +19,13 @@ indexes:
 - kind: FileModel
   properties:
   - name: extension
+  - name: user
+  - name: created
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: extension
   - name: file_type
   - name: user
   - name: created
