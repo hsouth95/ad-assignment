@@ -12,7 +12,14 @@ import basehandlers
 from models import *
 
 class ShareHandler(basehandlers.BaseHandler):
+    """Handler for creating a shared file"""
+    @classmethod
     def post(self, file_id):
+        """Creates a Collaboration item to allow sharing of a given file
+
+        Args:
+            file_id: The ID of the FileModel that is being shared
+        """
         if self.logged_in and file_id:
             user_key = self.current_user.key
 
@@ -29,7 +36,14 @@ class ShareHandler(basehandlers.BaseHandler):
             self.error(401)
 
 class FileHandler(basehandlers.BaseHandler):
+    """Handler for the various functionalities of the FileModel class"""
+    @classmethod
     def get(self):
+        """Retrieves a list of FileModel's for a given User which satisfies a filter
+        
+            Note:
+                The filter is optional and is part of the request
+        """
         if self.logged_in:
             user_key = self.current_user.key
 
@@ -43,7 +57,16 @@ class FileHandler(basehandlers.BaseHandler):
         else:
             self.error(401)
     
+    @classmethod
     def put(self, file_id):
+        """Updates a given FileModel with the data provided
+        
+            Args:
+                file_id: The ID of the FileModel to Update
+
+            Note:
+                The User does not need to be logged in for this, but will require a Collaboration key if not
+        """
         file_model = FileModel.get_by_id(long(file_id))
         #TODO add collab check
         if file_model and file_model.user == str(self.current_user.key.id()):
@@ -57,14 +80,20 @@ class FileHandler(basehandlers.BaseHandler):
 
             if metadata:
                 if file_model.file_type == "image":
-                    file_model.image_metadata = self.__set_entity_attrs(file_model.image_metadata, metadata, ImageMetadata)
+                    file_model.image_metadata = __set_entity_attrs(file_model.image_metadata, metadata)
                 elif file_model.file_type == "audio":
-                    file_model.audio_metadata = self.__set_entity_attrs(file_model.audio_metadata, metadata, AudioMetadata)
+                    file_model.audio_metadata = __set_entity_attrs(file_model.audio_metadata, metadata)
                 elif file_model.file_type == "video":
-                    file_model.video_metadata = self.__set_entity_attrs(file_model.video_metadata, metadata, VideoMetadata)
+                    file_model.video_metadata = __set_entity_attrs(file_model.video_metadata, metadata)
             file_model.put()
-
+    
+    @classmethod
     def delete(self, file_id):
+        """Deletes a given FileModel and its associated File
+
+            Args:
+                file_id: The ID of the FileModel to Delete
+        """
         file_model = FileModel.get_by_id(long(file_id))
         if file_model and file_model.user == str(self.current_user.key.id()):
             
@@ -74,8 +103,14 @@ class FileHandler(basehandlers.BaseHandler):
                 blob.delete()
 
             file_model.key.delete()
-
+    
+    @classmethod
     def post(self):
+        """Builds and creates a FileModel
+
+            Note:
+                Assumes an already created file which will have a valid blob_key
+        """
         if self.logged_in:
             data = json.loads(self.request.body)
 
@@ -112,7 +147,12 @@ class FileHandler(basehandlers.BaseHandler):
             self.response.write("Must be logged in")
             self.error(400)
 
-    def __set_entity_attrs(self, entity, data, metadata_class):
+    @staticmethod
+    def __set_entity_attrs(entity, data):
+        """Updates an Entity based on the attributes of it and the ndb.Model
+
+        
+        """
         for key in data:
             if hasattr(entity, key):
                 attribute = entity._properties[key]
@@ -126,7 +166,8 @@ class FileHandler(basehandlers.BaseHandler):
             
         return entity
 
-    def __set_metadata(self, file_model, metadata):
+    @classmethod
+    def __set_metadata(self, file_model, metadata): 
         file_type = file_model.file_type
         if file_type == "image":
             file_model.image_metadata = self.__get_metadata(metadata, ImageMetadata)
@@ -139,6 +180,7 @@ class FileHandler(basehandlers.BaseHandler):
 
         return file_model
 
+    @classmethod
     def __get_metadata(self, obj, metadata):
         if isinstance(obj, dict) is False:
             return None
@@ -161,6 +203,7 @@ class FileHandler(basehandlers.BaseHandler):
 
         return value
 
+@staticmethod
 def build_query(request):
     """Builds a ndb query for the FileModel from the 
     parameters given by a request
@@ -188,6 +231,7 @@ def build_query(request):
     return q
 
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, basehandlers.BaseHandler):
+    @classmethod
     def get(self, file_key):
         if not blobstore.get(file_key):
             self.error(404)
@@ -196,10 +240,12 @@ class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, basehandlers.
             return
 
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, basehandlers.BaseHandler):
+    @classmethod
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
         self.response.out.write(upload_url)
-
+    
+    @classmethod
     def post(self):
         if self.logged_in:
             upload = self.get_uploads()[0]

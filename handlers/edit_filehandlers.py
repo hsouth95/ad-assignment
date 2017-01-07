@@ -8,6 +8,7 @@ from PIL.ExifTags import TAGS
 import basehandlers
 
 class WaterMarkHandler(basehandlers.BaseHandler):
+    @classmethod
     def post(self, response_type):
         file_value = None
         file_url = None
@@ -71,6 +72,7 @@ class WaterMarkHandler(basehandlers.BaseHandler):
         self.response.write(finished_image)
 
 class ResizeHandler(basehandlers.BaseHandler):
+    @classmethod
     def post(self, response_type):
         file_value = None
         
@@ -112,6 +114,7 @@ class ResizeHandler(basehandlers.BaseHandler):
         self.response.write(finished_image)
 
 class GreyscaleHandler(basehandlers.BaseHandler):
+    @classmethod
     def post(self, response_type):
         file_value = None
         

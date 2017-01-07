@@ -43,6 +43,16 @@ $(function () {
         });
     }
 
+    updateSelectedFields = function (data) {
+        $.each(data, function () {
+            var field = $("#edit-information-" + this.name);
+
+            if (field) {
+                field.val(this.value);
+            }
+        });
+    }
+
     editFile = function (e, file) {
         var editFunction,
             that = e ? e.target : null;
@@ -58,6 +68,10 @@ $(function () {
             setButtonLoading(true);
             editFunction.fire(document.getElementById("edit-file"), function (data, updatedData) {
                 editFunction.replaceImageFile("edit-file", file.extension, data);
+                if (editFunction.getUpdatedData) {
+                    updateSelectedFields(editFunction.getUpdatedData());
+                }
+
                 fileMediaUpdated = true;
                 setButtonLoading(false);
             }, function (data) {
@@ -131,8 +145,16 @@ $(function () {
         return editFunctions;
     }
 
+    getSerializedFormArray = function (element) {
+        var disabled = element.find(':input:disabled').removeAttr('disabled');
+        var serialized = element.serializeArray();
+        disabled.attr('disabled', 'disabled');
+
+        return serialized;
+    }
+    
     convertFormToJSON = function (form) {
-        var array = $(form).serializeArray(),
+        var array = getSerializedFormArray($(form)),
             json = {},
             isFieldToUpdate = false;
         json.metadata = {};

@@ -29,6 +29,7 @@ class FileModel(ndb.Model):
     tags = ndb.StructuredProperty(Tag, repeated=True)
     created = ndb.DateTimeProperty(auto_now_add=True)
 
+    @classmethod
     def get_json(self):
         properties = self.to_dict()
 

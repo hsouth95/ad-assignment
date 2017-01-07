@@ -10,6 +10,7 @@ LOGOUT_URL = "/logout"
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader("views"))
 
 class MainPage(basehandlers.BaseHandler):
+    @classmethod
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
         template = template_env.get_template('home.html')
@@ -31,6 +32,7 @@ class MainPage(basehandlers.BaseHandler):
         self.response.out.write(template.render(context))
 
 class FilePage(basehandlers.BaseHandler):
+    @classmethod
     def get(self):
         if self.logged_in:
             user = self.current_user
@@ -46,6 +48,7 @@ class FilePage(basehandlers.BaseHandler):
             self.redirect("/")
 
 class EditPage(basehandlers.BaseHandler):
+    @classmethod
     def get(self, collab_id):
         if id:
             collab = Collaboration.get_by_id(long(collab_id))
