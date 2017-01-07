@@ -293,7 +293,7 @@ $(function () {
 
     shareFile = function (id) {
         fileApi.shareFile(id, function (data) {
-            var url = fileApi.editUrl + "/" + data.id;
+            var url = EDIT_URL + "/" + data.id;
             toastr.success("Share from: <input onclick='this.select();' class='form-control' type='url' value='" + url + "' />", "Share Success", {
                 timeOut: 0,
                 extendedTimeOut: 0,

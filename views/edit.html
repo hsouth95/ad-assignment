@@ -9,7 +9,7 @@
             <div class="loading-block">
                 <div class='spinner'><div class='double-bounce1'></div><div class='double-bounce2'></div></div>
             </div>
-            <img id="edit-file" data-id="{{ file_model.key.id() }}" class="editing-file" src="/download/{{ file_model.blob_key }}">
+            <img id="edit-file" data-id="{{ file_model.key.id() }}" class="editing-file center-block" src="/download/{{ file_model.blob_key }}">
         </div>
         <div class="col-lg-4 col-sm-12">
             <div class="information-block">
@@ -19,6 +19,8 @@
             </div>
             <div class="edit-block">
                 <h1>Edit</h1>
+                <div id="edit-functions">
+                </div>
             </div>
             <button id="save-btn" class="btn btn-primary">Save</button>
         </div>

@@ -1,10 +1,10 @@
 $(function () {
     var fileApi = new FileApi(),
-        fileData = null;
-    fileMediaUpdated = false;
+        fileData = null,
+        fileMediaUpdated = false;
 
     getFile = function () {
-        var id = $("#edit-file").attr("data-id");
+        var id = fileData ? fileData.id : $("#edit-file").attr("data-id");
 
         if (id) {
             var filters = "id=" + id;
@@ -35,29 +35,57 @@ $(function () {
         });
 
         $.each(fileEditFunctions, function () {
-            $(".edit-block")[0].appendChild(this.displayableElement());
+            $("#edit-functions")[0].appendChild(this.displayableElement());
         });
 
-        $(".file-function").click(function () {
-            var editFunction,
-                that = this;
+        $(".file-function").click(function (e) {
+            editFile(e, file);
+        });
+    }
 
-            $.each(fileEditFunctions, function () {
-                if (this.id === that.id) {
-                    editFunction = this;
-                    return false;
-                }
-            });
+    editFile = function (e, file) {
+        var editFunction,
+            that = e ? e.target : null;
 
-            if (editFunction) {
-                editFunction.fire(document.getElementById("edit-file"), function (data) {
-                    editFunction.replaceImageFile("edit-file", file.extension, data);
-                    fileMediaUpdated = true;
-                }, function (data) {
-                    toastr.error("Failed to apply " + editFunction.name + " to the file.", "Error");
-                });
+        $.each(EDIT_FUNCTIONS, function () {
+            if (this.id === that.id) {
+                editFunction = this;
+                return false;
             }
         });
+
+        if (editFunction) {
+            setButtonLoading(true);
+            editFunction.fire(document.getElementById("edit-file"), function (data) {
+                editFunction.replaceImageFile("edit-file", file.extension, data);
+                fileMediaUpdated = true;
+                setButtonLoading(false);
+            }, function (data) {
+                toastr.error("Failed to apply " + editFunction.name + " to the file.", "Error");
+                setButtonLoading(false);
+            });
+        }
+    }
+
+    setButtonLoading = function (isEventFiring) {
+        changeButtonDisabled(isEventFiring);
+        setLoading(isEventFiring);
+    }
+
+    changeButtonDisabled = function (disable) {
+        if (disable) {
+            $(".file-function").attr("disabled", "true");
+            $("#save-btn").attr("disabled", "true");
+        } else {
+            $(".file-function").removeAttr("disabled");
+            $("#save-btn").removeAttr("disabled");
+        }
+    }
+
+    clearFileInfo = function () {
+        $("input").val("");
+        $("#edit-information").empty();
+        $("#edit-functions").empty();
     }
 
     getUploadUrl = function (callback) {
@@ -163,16 +191,24 @@ $(function () {
 
         if (data) {
             fileApi.updateFileData(fileData.id, data, function () {
-                toastr.success("Updated file");
+                clearFileInfo();
+                setTimeout(function () {
+                    getFile();
+                    toastr.success("Updated file");
+                    setButtonLoading(false);
+                }, 1000);
             });
         } else {
+            clearFileInfo();
             toastr.success("Updated file");
+            getFile();
+            setButtonLoading(false);
         }
     }
 
     $("#save-btn").click(function () {
         var file = document.getElementById("edit-file");
-
+        setButtonLoading(true);
         if (fileMediaUpdated) {
             sendFile(file, updateFile);
         } else {

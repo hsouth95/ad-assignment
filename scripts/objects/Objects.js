@@ -290,6 +290,7 @@ EditFileFunction.prototype.editFile = function(e, t, i) {
 
 EditFileFunction.prototype.replaceImageFile = function(e, t, i) {
     var a = document.createElement("img");
+    a.className = "center-block";
     a.id = e;
     a.onload = function() {
         $("#" + e).replaceWith(a);

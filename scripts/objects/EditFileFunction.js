@@ -65,6 +65,7 @@ EditFileFunction.prototype.editFile = function (data, url, options) {
 
 EditFileFunction.prototype.replaceImageFile = function (originalElementId, format, data) {
     var updatedImage = document.createElement("img");
+    updatedImage.className = "center-block";
     updatedImage.id = originalElementId;
     updatedImage.onload = function () {
         $("#" + originalElementId).replaceWith(updatedImage);
