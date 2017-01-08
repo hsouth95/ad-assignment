@@ -14,6 +14,7 @@ app_config = {
     'user_attributes': []
   }
 }
+
 app = webapp2.WSGIApplication([('/', pages.MainPage),
                             ('/viewfiles', pages.FilePage),
                             ('/editpage/([^/]+)?', pages.EditPage),

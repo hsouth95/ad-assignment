@@ -10,6 +10,7 @@ from simpleauth import Error as AuthError
 FACEBOOK_AVATAR_URL = 'https://graph.facebook.com/{0}/picture?type=large'
 
 class BaseHandler(webapp2.RequestHandler):
+    """Base handler for the basic functionality of webapp2 such as Authentication"""
     USER_ATTRS = {
         'googleplus': {
             'provider': 'google',
@@ -35,26 +36,28 @@ class BaseHandler(webapp2.RequestHandler):
     }
 
     def dispatch(self):
+        """Overrides the basic functionality of a webapp2 request to offer added functionality"""
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
 
         try:
-            # Dispatch the request.
+            # Allow other domains to access the API's
             self.response.headers.add('Access-Control-Allow-Origin', '*')
             webapp2.RequestHandler.dispatch(self)
         except AuthError:
+            # Error with login providers, therefore return to home page
             self.redirect('/')
         finally:
-            # Save all sessions.
             self.session_store.save_sessions(self.response)
 
     @webapp2.cached_property
     def session(self):
         """Returns a session using the default cookie key"""
         return self.session_store.get_session()
-
+    
     @webapp2.cached_property
     def auth(self):
+        """Returns an authorisation object"""
         return auth.get_auth()
 
     @webapp2.cached_property
@@ -62,7 +65,7 @@ class BaseHandler(webapp2.RequestHandler):
         """Returns currently logged in user"""
         user_dict = self.auth.get_user_by_session()
         return self.auth.store.user_model.get_by_id(user_dict['user_id'])
-
+    
     @webapp2.cached_property
     def logged_in(self):
         """Returns true if a user is currently logged in, false otherwise"""
@@ -70,7 +73,7 @@ class BaseHandler(webapp2.RequestHandler):
     
     @webapp2.cached_property
     def get_logins(self):
-        # Get all logins we can use
+        """Returns all logins we can use"""
         logins = []
         for key, value in self.USER_ATTRS.iteritems():
             logins.append({
@@ -84,7 +87,17 @@ class BaseHandler(webapp2.RequestHandler):
         return logins
 
 class AuthHandler(BaseHandler, SimpleAuthHandler):
+    """Handles the Authentication requests with external providers"""
     def _on_signin(self, data, auth_info, provider, extra=None):
+        """Functionality to occur when a User signs in
+
+            Args:
+                data: The data returned from the provider
+                auth_info: Information about the authentication
+                provider: The provider being used to sign in
+                extra: Any extra data from the provider
+        """
+
         auth_id = '%s:%s' % (provider, data['id'])
 
         user = self.auth.store.user_model.get_by_auth_id(auth_id)
@@ -101,13 +114,13 @@ class AuthHandler(BaseHandler, SimpleAuthHandler):
             # otherwise add this auth_id to currently logged in user.
 
             if self.logged_in:
-                u = self.current_user
-                u.populate(**_attrs)
-                u.add_auth_id(auth_id)
+                updating_user = self.current_user
+                updating_user.populate(**_attrs)
+                updating_user.add_auth_id(auth_id)
 
             else:
-                ok, user = self.auth.store.user_model.create_user(auth_id, **_attrs)
-                if ok:
+                success, user = self.auth.store.user_model.create_user(auth_id, **_attrs)
+                if success:
                     self.auth.set_session(self.auth.store.user_to_dict(user))
       
         destination_url = '/'
@@ -119,13 +132,24 @@ class AuthHandler(BaseHandler, SimpleAuthHandler):
         return self.redirect(destination_url)
 
     def logout(self):
+        """Functionality to occur on the User logging out"""
         self.auth.unset_session()
         self.redirect("/")
 
     def _callback_uri_for(self, provider):
+        """Retrieve the callback url for a given provider
+        
+            Args:
+                provider: The provider to get the url for
+        """
         return self.uri_for('auth_callback', provider=provider, _full=True)
 
     def _get_consumer_info_for(self, provider):
+        """Returns the secrets of a given provider
+
+            Args:
+                provider: The Provider to get the secrets for
+        """
         return secrets.AUTH_CONFIG[provider]
 
     def _get_optional_params_for(self, provider):

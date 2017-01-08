@@ -14,7 +14,6 @@ class WaterMarkHandler(basehandlers.BaseHandler):
     """
     FONT_TYPE = "Promocyja096.ttf"
 
-
     def post(self, response_type):
         """Updates a given image with a watermark of a given value
 
@@ -96,7 +95,6 @@ class WaterMarkHandler(basehandlers.BaseHandler):
 
 class ResizeHandler(basehandlers.BaseHandler):
     """Handles the resizing of an Image"""
-    @classmethod
     def post(self, response_type):
         """Updates a given image to be of a given dimensions
 
@@ -144,7 +142,6 @@ class ResizeHandler(basehandlers.BaseHandler):
 
 class GreyscaleHandler(basehandlers.BaseHandler):
     """Handles the greyscaling of an image"""
-    @classmethod
     def post(self, response_type):
         """Updates a given image to be greyscaled
 

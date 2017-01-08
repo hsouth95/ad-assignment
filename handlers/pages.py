@@ -11,7 +11,6 @@ template_env = jinja2.Environment(loader=jinja2.FileSystemLoader("views"))
 
 class MainPage(basehandlers.BaseHandler):
     """Handles the home page of the website"""
-    @classmethod
     def get(self):
         """Builds and sends a html file of the home page"""
         upload_url = blobstore.create_upload_url('/upload')
@@ -35,7 +34,6 @@ class MainPage(basehandlers.BaseHandler):
 
 class FilePage(basehandlers.BaseHandler):
     """Handles the file page of the website"""
-    @classmethod
     def get(self):
         """Builds and sends a html file of the file page
 
@@ -57,7 +55,6 @@ class FilePage(basehandlers.BaseHandler):
 
 class EditPage(basehandlers.BaseHandler):
     """Handles the shared file page of the website"""
-    @classmethod
     def get(self, collab_id):
         """Builds and sends a html file of the shared file page
 

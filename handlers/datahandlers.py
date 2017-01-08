@@ -13,7 +13,6 @@ from models import *
 
 class ShareHandler(basehandlers.BaseHandler):
     """Handler for creating a shared file"""
-    @classmethod
     def post(self, file_id):
         """Creates a Collaboration item to allow sharing of a given file
 
@@ -37,7 +36,6 @@ class ShareHandler(basehandlers.BaseHandler):
 
 class FileHandler(basehandlers.BaseHandler):
     """Handler for the various functionalities of the FileModel class"""
-    @classmethod
     def get(self):
         """Retrieves a list of FileModel's for a given User which satisfies a filter
         
@@ -57,7 +55,6 @@ class FileHandler(basehandlers.BaseHandler):
         else:
             self.error(401)
     
-    @classmethod
     def put(self, file_id):
         """Updates a given FileModel with the data provided
         
@@ -87,7 +84,6 @@ class FileHandler(basehandlers.BaseHandler):
                     file_model.video_metadata = FileHandler.__set_entity_attrs(file_model.video_metadata, metadata)
             file_model.put()
     
-    @classmethod
     def delete(self, file_id):
         """Deletes a given FileModel and its associated File
 
@@ -104,7 +100,6 @@ class FileHandler(basehandlers.BaseHandler):
 
             file_model.key.delete()
     
-    @classmethod
     def post(self):
         """Builds and creates a FileModel
 
@@ -260,7 +255,6 @@ class FileHandler(basehandlers.BaseHandler):
 
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, basehandlers.BaseHandler):
     """Handles the serving of files from the BlobStore"""
-    @classmethod
     def get(self, file_key):
         """Retrieves the File from the BlobStore
         
@@ -275,13 +269,11 @@ class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, basehandlers.
 
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, basehandlers.BaseHandler):
     """Handles the uploading of the Files to the BlobStore"""
-    @classmethod
     def get(self):
         """Retrieves a URL to allow for uploading to the BlobStore"""
         upload_url = blobstore.create_upload_url('/upload')
         self.response.out.write(upload_url)
-    
-    @classmethod
+
     def post(self):
         """Creates or updates a File in the BlobStore
 
