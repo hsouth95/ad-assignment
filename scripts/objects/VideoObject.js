@@ -5,6 +5,7 @@ var VideoObject = function(options) {
     this.extension = options.extension;
     this.duration = options.video_metadata.duration;
     this.created = options.created;
+    this.size = options.size;
     this.file_type = options.file_type;
 }
 
@@ -26,6 +27,12 @@ VideoObject.prototype.getDisplayableAttributes = function() {
             value: this.duration,
             friendlyName: "Duration",
             disabled: true,
+        }),
+        size: new Field({
+            name: "size",
+            value: this.size,
+            friendlyName: "Size",
+            disabled: true
         })
     };
 }

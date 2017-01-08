@@ -26,6 +26,7 @@ class FileModel(ndb.Model):
     file_type = ndb.StringProperty(required=True)
     blob_key = ndb.BlobKeyProperty(required=True)
     extension = ndb.StringProperty()
+    size = ndb.IntegerProperty()
     image_metadata = ndb.StructuredProperty(ImageMetadata)
     audio_metadata = ndb.StructuredProperty(AudioMetadata)
     video_metadata = ndb.StructuredProperty(VideoMetadata)

@@ -129,6 +129,7 @@ var AudioObject = function(e) {
     this.extension = e.extension;
     this.duration = e.audio_metadata.duration;
     this.created = e.created;
+    this.size = e.size;
     this.file_type = e.file_type;
 };
 
@@ -150,6 +151,12 @@ AudioObject.prototype.getDisplayableAttributes = function() {
             value: this.duration,
             friendlyName: "Duration",
             disabled: true
+        }),
+        size: new Field({
+            name: "size",
+            value: this.size,
+            friendlyName: "Size",
+            disabled: true
         })
     };
 };
@@ -163,6 +170,7 @@ var ImageObject = function(e) {
     this.width = e.image_metadata.width;
     this.created = new Date(e.created);
     this.file_type = e.file_type;
+    this.size = e.size;
     this.tags = e.tags;
 };
 
@@ -192,6 +200,12 @@ ImageObject.prototype.getDisplayableAttributes = function() {
             friendlyName: "Width",
             disabled: true,
             type: "number"
+        }),
+        size: new Field({
+            name: "size",
+            value: this.size,
+            friendlyName: "Size",
+            disabled: true
         })
     };
 };
@@ -203,6 +217,7 @@ var VideoObject = function(e) {
     this.extension = e.extension;
     this.duration = e.video_metadata.duration;
     this.created = e.created;
+    this.size = e.size;
     this.file_type = e.file_type;
 };
 
@@ -223,6 +238,12 @@ VideoObject.prototype.getDisplayableAttributes = function() {
             name: "metadata-duration",
             value: this.duration,
             friendlyName: "Duration",
+            disabled: true
+        }),
+        size: new Field({
+            name: "size",
+            value: this.size,
+            friendlyName: "Size",
             disabled: true
         })
     };

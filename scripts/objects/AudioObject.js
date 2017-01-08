@@ -5,6 +5,7 @@ var AudioObject = function(options) {
     this.extension = options.extension;
     this.duration = options.audio_metadata.duration;
     this.created = options.created;
+    this.size = options.size;
     this.file_type = options.file_type;
 }
 
@@ -26,6 +27,12 @@ AudioObject.prototype.getDisplayableAttributes = function() {
             value: this.duration,
             friendlyName: "Duration",
             disabled: true,
+        }),
+        size: new Field({
+            name: "size",
+            value: this.size,
+            friendlyName: "Size",
+            disabled: true
         })
     };
 }

@@ -5,6 +5,10 @@
     max-height: 100%;
 }
 
+.media-block video, audio {
+    width: 100%;
+}
+
 .information-block {
     background-color: #FF917A;
     padding: 10px;

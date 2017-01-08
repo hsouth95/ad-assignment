@@ -7,6 +7,7 @@ var ImageObject = function(options) {
     this.width = options.image_metadata.width;
     this.created = new Date(options.created);
     this.file_type = options.file_type;
+    this.size = options.size;
     this.tags = options.tags;
 }
 
@@ -36,6 +37,12 @@ ImageObject.prototype.getDisplayableAttributes = function() {
             friendlyName: "Width",
             disabled: true,
             type: "number"
+        }),
+        size: new Field({
+            name: "size",
+            value: this.size,
+            friendlyName: "Size",
+            disabled: true
         })
     };
 }

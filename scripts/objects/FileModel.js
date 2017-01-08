@@ -11,6 +11,7 @@ FileModel.prototype.setData = function (url, callback) {
     if (this.file && this.fileObject) {
         this.data.name = this.file.name;
         this.data.extension = this.file.name.split(".").slice(-1)[0];
+        this.data.size = this.file.size;
 
         switch (this.data.file_type) {
             case "image":

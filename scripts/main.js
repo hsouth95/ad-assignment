@@ -127,6 +127,11 @@ $(function () {
             inputElement.className = "form-control";
             inputElement.placeholder = labelText;
 
+            // If this is not a filename field then disable it
+            if (name !== "filename") {
+                inputElement.disabled = "disabled";
+            }
+
             labelElement.htmlFor = name;
             labelElement.innerHTML = labelText;
 
@@ -203,8 +208,16 @@ $(function () {
         }
     }
 
+    getSerializedFormArray = function (element) {
+        var disabled = element.find(':input:disabled').removeAttr('disabled');
+        var serialized = element.serializeArray();
+        disabled.attr('disabled', 'disabled');
+
+        return serialized;
+    }
+
     convertFormToJSON = function (form) {
-        var array = $(form).serializeArray(),
+        var array = getSerializedFormArray($(form)),
             json = {};
 
         json.metadata = {};

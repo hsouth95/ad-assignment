@@ -9,7 +9,13 @@
             <div class="loading-block">
                 <div class='spinner'><div class='double-bounce1'></div><div class='double-bounce2'></div></div>
             </div>
+            {% if file_model.file_type == "image" %}
             <img id="edit-file" data-id="{{ file_model.key.id() }}" class="editing-file center-block" src="/download/{{ file_model.blob_key }}">
+            {% elif file_model.file_type == "audio" %}
+            <audio id="edit-file" data-id="{{ file_model.key.id() }}" class="editing-file center-block" src="/download/{{ file_model.blob_key }}" controls>
+            {% elif file_model.file_type == "video" %}
+            <video id="edit-file" data-id="{{ file_model.key.id() }}" class="editing-file center-block" src="/download/{{ file_model.blob_key }}" controls>
+            {% endif %}
         </div>
         <div class="col-lg-4 col-sm-12">
             <div class="information-block">

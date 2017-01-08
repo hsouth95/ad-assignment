@@ -128,6 +128,7 @@ class FileHandler(basehandlers.BaseHandler):
             metadata = data["metadata"]
             blob_key = data["blob_key"]
             extension = data["extension"]
+            size = data["size"]
 
             user = str(self.current_user.key.id())
 
@@ -141,6 +142,7 @@ class FileHandler(basehandlers.BaseHandler):
                 file_type=file_type,
                 blob_key=BlobKey(blob_key),
                 extension=extension,
+                size=int(size),
                 user=user
             )
 
