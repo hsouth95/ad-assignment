@@ -258,28 +258,45 @@ $(function () {
     }
 
     getAuthor = function (formData, callback) {
-        var url = "https://ws-media.appspot.com/photo/photometadata";
+        var url = "https://ws-media.appspot.com/photo/photometadata",
+            dataUrl = document.getElementById("uploading-file").src;
+
         $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
+            url: dataUrl,
+            type: "GET",
             contentType: false,
             processData: false,
-            crossDomain: true,
             success: function (data) {
-                if (data !== "Unable to derive data from the given file") {
-                    alert(data);
-                    if (typeof callback === "function") {
-                        callback();
-                    }
-                } else {
-                    toastr.warning("No camera details on file");
+                var ui8 = new Uint8Array(data.length);
+
+                for (var i = 0; i < data.length; i++) {
+                    ui8[i] = data.charCodeAt(i);
                 }
-            },
-            error: function (data) {
-                toastr.warning("Error finding camera details");
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: ui8,
+                    contentType: false,
+                    processData: false,
+                    crossDomain: true,
+                    success: function (data) {
+                        if (data !== "Unable to derive data from the given file") {
+                            alert(data);
+                            if (typeof callback === "function") {
+                                callback();
+                            }
+                        } else {
+                            toastr.warning("No camera details on file");
+                        }
+                    },
+                    error: function (data) {
+                        toastr.warning("Error finding camera details");
+                    }
+                });
+
+
             }
-        });
+        })
     }
 
     $("#file-picker-button").on("click", function () {

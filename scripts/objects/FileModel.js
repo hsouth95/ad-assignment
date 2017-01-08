@@ -110,9 +110,11 @@ FileModel.prototype.parseFile = function (file, callback, errorCallback) {
 
     if (this.data.file_type === "image") {
         this.fileObject = document.createElement("img");
+        this.fileObject.id = "uploading-file";
         this.setData(objectUrl, callback);
     } else {
         this.fileObject = document.createElement(this.data.file_type);
+        this.fileObject.id = "uploading-file";
         this.fileObject.src = objectUrl;
         this.setData(null, callback);
     }
