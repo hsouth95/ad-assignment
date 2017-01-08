@@ -84,22 +84,20 @@ var EDIT_FUNCTIONS = [
         },
         displayableElement: function () {
             var div = document.createElement("div"),
-                span = document.createElement("span"),
                 button = document.createElement("button"),
                 heightBox = document.createElement("input"),
                 widthBox = document.createElement("input");
-
-            div.className = "input-group";
-            span.className = "input-group-btn";
+            
+            div.className = "row";
 
             heightBox.id = "resize-height";
-            heightBox.className = "form-control";
-            heightBox.type = "text";
+            heightBox.className = "form-control col-lg-4";
+            heightBox.type = "number";
             heightBox.placeholder = "Enter file height";
 
             widthBox.id = "resize-width";
-            widthBox.className = "form-control";
-            widthBox.type = "text";
+            widthBox.className = "form-control col-lg-4";
+            widthBox.type = "number";
             widthBox.placeholder = "Enter file width";
 
             button.innerHTML = this.name;
@@ -107,11 +105,10 @@ var EDIT_FUNCTIONS = [
             button.className = "btn btn-default file-function";
             button.type = "button";
 
-            span.appendChild(button);
 
             div.appendChild(widthBox);
             div.appendChild(heightBox);
-            div.appendChild(span);
+            div.appendChild(button);
 
             return div;
         }

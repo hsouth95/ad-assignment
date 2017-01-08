@@ -25,3 +25,8 @@
     z-index: 10;
     width: 100%;
 }
+
+.edit-function-container {
+    margin-bottom: 10px;
+    padding: 5px;
+}

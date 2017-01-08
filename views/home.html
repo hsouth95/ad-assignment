@@ -6,6 +6,9 @@
 {% block content %}
     <form action="{{ upload_url }}" id="file-form" class="row" method="post" enctype="multipart/form-data">
         <div class="file-wrapper col-lg-8">
+            {% if not user %}
+            <h1 class="bg-danger">You need to be signed in to upload Files</h1>
+            {% endif %}
             <div id="file-picker-button" class="drag-n-drop-overlay pointer">
                 <span class="drag-n-drop-content"><i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Pick a file to upload.</span>
             </div>

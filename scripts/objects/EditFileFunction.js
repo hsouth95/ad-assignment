@@ -42,6 +42,20 @@ EditFileFunction.prototype.dataUrlToBlob = function (dataUrl) {
     return new Blob([u8arr], { type: mime });
 }
 
+EditFileFunction.prototype.getElement = function () {
+    if (this.displayableElement) {
+        var container = document.createElement("div");
+
+        container.className = "edit-function-container container";
+
+        container.appendChild(this.displayableElement());
+
+        return container;
+    }
+
+    return null;
+}
+
 EditFileFunction.prototype.fire = function (file, callback, errorCallback) {
     var data = this.getData(file);
     EditFileFunction.prototype.editFile(data, this.url, {

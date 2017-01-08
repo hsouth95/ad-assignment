@@ -13,7 +13,8 @@ $(function () {
                 var file = data[0];
                 fileData = file;
                 displayFileDetails(file);
-            }, function (data) {
+            }, 
+            function (data) {
                 toastr.error("Error getting file");
             })
         }
@@ -36,7 +37,7 @@ $(function () {
         });
 
         $.each(fileEditFunctions, function () {
-            $("#edit-functions")[0].appendChild(this.displayableElement());
+            $("#edit-functions")[0].appendChild(this.getElement());
         });
 
         $(".file-function").click(function (e) {
@@ -109,6 +110,9 @@ $(function () {
             type: "GET",
             success: function (data) {
                 callback(data);
+            },
+            error: function(data) {
+                toastr.error("Error with the upload mechanisms, please refresh the page");
             }
         });
     }
@@ -220,6 +224,10 @@ $(function () {
                     toastr.success("Updated file");
                     setButtonLoading(false);
                 }, 1000);
+            },
+            function(data){
+                toastr.error("Error saving the file, please try again.");
+                setButtonLoading(false);
             });
         } else {
             clearFileInfo();

@@ -15,14 +15,14 @@ EDIT_URL = window.location.protocol + "//" + window.location.host + "/editpage";
 var FileApi = function() {};
 
 FileApi.prototype.getFiles = function(e, t, i) {
-    var a = this, n = e ? LIST_URL + "?" + e : LIST_URL;
+    var n = this, a = e ? LIST_URL + "?" + e : LIST_URL;
     $.ajax({
-        url: n,
+        url: a,
         type: "GET",
         dataType: "json",
         contentType: "application/json",
         success: function(e) {
-            t(a.splitData(e.files));
+            t(n.splitData(e.files));
         },
         error: function(e) {
             i(e);
@@ -31,9 +31,9 @@ FileApi.prototype.getFiles = function(e, t, i) {
 };
 
 FileApi.prototype.deleteFile = function(e, t, i) {
-    var a = DELETE_URL + "/" + e;
+    var n = DELETE_URL + "/" + e;
     $.ajax({
-        url: a,
+        url: n,
         type: "DELETE",
         contentType: "application/json",
         success: function() {
@@ -46,9 +46,9 @@ FileApi.prototype.deleteFile = function(e, t, i) {
 };
 
 FileApi.prototype.shareFile = function(e, t, i) {
-    var a = SHARE_URL + "/" + e;
+    var n = SHARE_URL + "/" + e;
     $.ajax({
-        url: a,
+        url: n,
         type: "POST",
         contentType: "application/json",
         success: function(e) {
@@ -81,10 +81,10 @@ FileApi.prototype.splitData = function(e) {
     return t;
 };
 
-FileApi.prototype.updateFileData = function(e, t, i, a) {
-    var n = ADD_URL + "/" + e;
+FileApi.prototype.updateFileData = function(e, t, i, n) {
+    var a = ADD_URL + "/" + e;
     $.ajax({
-        url: n,
+        url: a,
         type: "PUT",
         data: t,
         contentType: "application/json",
@@ -92,7 +92,7 @@ FileApi.prototype.updateFileData = function(e, t, i, a) {
             i(e);
         },
         error: function(e) {
-            a(e);
+            n(e);
         }
     });
 };
@@ -240,8 +240,8 @@ var EditFileFunction = function(e) {
 };
 
 EditFileFunction.prototype.getData = function(e) {
-    var t = new FormData(), i = this.getDataUri(e), a = this.dataUrlToBlob(i);
-    t.append("file", a);
+    var t = new FormData(), i = this.getDataUri(e), n = this.dataUrlToBlob(i);
+    t.append("file", n);
     if (this.extraData) {
         t = this.extraData(t);
     }
@@ -257,18 +257,28 @@ EditFileFunction.prototype.getDataUri = function(e) {
 };
 
 EditFileFunction.prototype.dataUrlToBlob = function(e) {
-    var t = e.split(","), i = t[0].match(/:(.*?);/)[1], a = atob(t[1]), n = a.length, o = new Uint8Array(n);
-    while (n--) {
-        o[n] = a.charCodeAt(n);
+    var t = e.split(","), i = t[0].match(/:(.*?);/)[1], n = atob(t[1]), a = n.length, l = new Uint8Array(a);
+    while (a--) {
+        l[a] = n.charCodeAt(a);
     }
-    return new Blob([ o ], {
+    return new Blob([ l ], {
         type: i
     });
 };
 
+EditFileFunction.prototype.getElement = function() {
+    if (this.displayableElement) {
+        var e = document.createElement("div");
+        e.className = "edit-function-container container";
+        e.appendChild(this.displayableElement());
+        return e;
+    }
+    return null;
+};
+
 EditFileFunction.prototype.fire = function(e, t, i) {
-    var a = this.getData(e);
-    EditFileFunction.prototype.editFile(a, this.url, {
+    var n = this.getData(e);
+    EditFileFunction.prototype.editFile(n, this.url, {
         success: t,
         error: i
     });
@@ -289,14 +299,14 @@ EditFileFunction.prototype.editFile = function(e, t, i) {
 };
 
 EditFileFunction.prototype.replaceImageFile = function(e, t, i) {
-    var a = document.createElement("img");
-    a.className = "center-block";
-    a.id = e;
-    a.onload = function() {
-        $("#" + e).replaceWith(a);
+    var n = document.createElement("img");
+    n.className = "center-block";
+    n.id = e;
+    n.onload = function() {
+        $("#" + e).replaceWith(n);
     };
-    a.src = "data:image/" + t + ";base64," + decodeURIComponent(i);
-    return a;
+    n.src = "data:image/" + t + ";base64," + decodeURIComponent(i);
+    return n;
 };
 
 var EDIT_FUNCTIONS = [ new EditFileFunction({
@@ -313,19 +323,19 @@ var EDIT_FUNCTIONS = [ new EditFileFunction({
         return e;
     },
     displayableElement: function() {
-        var e = document.createElement("div"), t = document.createElement("span"), i = document.createElement("button"), a = document.createElement("input");
+        var e = document.createElement("div"), t = document.createElement("span"), i = document.createElement("button"), n = document.createElement("input");
         e.className = "input-group";
         t.className = "input-group-btn";
-        a.id = "watermark-text";
-        a.className = "form-control";
-        a.type = "text";
-        a.placeholder = "Enter watermark text";
+        n.id = "watermark-text";
+        n.className = "form-control";
+        n.type = "text";
+        n.placeholder = "Enter watermark text";
         i.innerHTML = this.name;
         i.id = this.id;
         i.className = "btn btn-default file-function";
         i.type = "button";
         t.appendChild(i);
-        e.appendChild(a);
+        e.appendChild(n);
         e.appendChild(t);
         return e;
     }
@@ -362,24 +372,22 @@ var EDIT_FUNCTIONS = [ new EditFileFunction({
         return i;
     },
     displayableElement: function() {
-        var e = document.createElement("div"), t = document.createElement("span"), i = document.createElement("button"), a = document.createElement("input"), n = document.createElement("input");
-        e.className = "input-group";
-        t.className = "input-group-btn";
-        a.id = "resize-height";
-        a.className = "form-control";
-        a.type = "text";
-        a.placeholder = "Enter file height";
+        var e = document.createElement("div"), t = document.createElement("button"), i = document.createElement("input"), n = document.createElement("input");
+        e.className = "row";
+        i.id = "resize-height";
+        i.className = "form-control col-lg-4";
+        i.type = "number";
+        i.placeholder = "Enter file height";
         n.id = "resize-width";
-        n.className = "form-control";
-        n.type = "text";
+        n.className = "form-control col-lg-4";
+        n.type = "number";
         n.placeholder = "Enter file width";
-        i.innerHTML = this.name;
-        i.id = this.id;
-        i.className = "btn btn-default file-function";
-        i.type = "button";
-        t.appendChild(i);
+        t.innerHTML = this.name;
+        t.id = this.id;
+        t.className = "btn btn-default file-function";
+        t.type = "button";
         e.appendChild(n);
-        e.appendChild(a);
+        e.appendChild(i);
         e.appendChild(t);
         return e;
     }

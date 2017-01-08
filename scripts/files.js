@@ -8,8 +8,12 @@ $(function () {
     setLoading = function (visible) {
         if (visible) {
             $(".loading-block").show();
+            $(".file-function").attr("disabled", "disabled");
+            $("#edit-save-btn").attr("disabled", "disabled");
         } else {
             $(".loading-block").hide();
+            $(".file-function").removeAttr("disabled");
+            $("#edit-save-btn").removeAttr("disabled");
         }
     }
 
@@ -49,9 +53,10 @@ $(function () {
                 FileApi.prototype.deleteFile(data.id, function () {
                     toastr.success("File successfully deleted");
                     listItems();
-                }, function (data) {
-                    toastr.error("File failed to delete");
-                });
+                },
+                    function (data) {
+                        toastr.error("File failed to delete");
+                    });
             }
         });
 
@@ -178,7 +183,7 @@ $(function () {
             informationBlock.appendChild(this);
         });
         $.each(fileEditFunctions, function () {
-            editActionsBlock.appendChild(this.displayableElement());
+            editActionsBlock.appendChild(this.getElement());
         });
 
         $(".file-function").click(function () {
@@ -193,16 +198,20 @@ $(function () {
             });
 
             if (editFunction) {
+                setLoading(true);
                 editFunction.fire(originalMediaObject, function (data) {
+                    setLoading(false);
                     if (editFunction.getUpdatedData) {
                         updateSelectedFields(editFunction.getUpdatedData());
                     }
 
                     editFunction.replaceImageFile("edit-media", data.extension, data);
                     fileMediaUpdated = true;
-                }, function (data) {
-                    toastr.error("Failed to apply " + editFunction.name + " to the file.", "Error");
-                });
+                },
+                    function (data) {
+                        setLoading(false);
+                        toastr.error("Failed to apply " + editFunction.name + " to the file.", "Error");
+                    });
             }
         });
 
@@ -310,7 +319,11 @@ $(function () {
             } else {
                 $(".grid").html("<h1>No files</h1>");
             }
-        });
+        },
+            function (data) {
+                toastr.error("Failed to load files...");
+                $(".grid").html("<h1>No files</h1>");
+            });
     }
 
     shareFile = function (id) {
@@ -323,9 +336,10 @@ $(function () {
                 onclick: null,
                 tapToDismiss: false
             });
-        }, function (data) {
-            toastr.error("Unable to create a shared file with error: <br />" + data + " <br />Please try again.", "Error");
-        });
+        },
+            function (data) {
+                toastr.error("Unable to create a shared file with error: <br />" + data + " <br />Please try again.", "Error");
+            });
     }
 
     getUploadUrl = function (callback) {
@@ -378,7 +392,10 @@ $(function () {
                 $("#edit-modal").modal("hide");
                 toastr.success("Updated file");
                 listItems();
-            });
+            },
+                function (data) {
+                    toastr.error("Failed to update the file data");
+                });
         } else {
             $("#edit-modal").modal("hide");
             toastr.success("Updated file");

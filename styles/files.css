@@ -72,6 +72,15 @@
             animation: Items 500ms ease-in forwards;
 }
 
+.edit-function-container {
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.edit-function-container .row input {
+    width: auto;
+}
+
 .loading-block {
     display: none;
     position: absolute;
