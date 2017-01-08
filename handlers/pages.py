@@ -79,8 +79,11 @@ class EditPage(basehandlers.BaseHandler):
                         "title": "WS Ltd Prototype",
                         "logout_url": LOGOUT_URL,
                         "user": user,
-                        "file_model": file_model 
+                        "file_model": file_model,
+                        "collab_id": collab_id
                     }
                     self.response.write(template.render(context))
                 else:
                     self.error(404)
+            else:
+                self.error(404)

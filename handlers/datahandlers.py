@@ -38,14 +38,18 @@ class FileHandler(basehandlers.BaseHandler):
     """Handler for the various functionalities of the FileModel class"""
     def get(self):
         """Retrieves a list of FileModel's for a given User which satisfies a filter
-        
+
             Note:
                 The filter is optional and is part of the request
         """
-        if self.logged_in:
-            user_key = self.current_user.key
-
-            files = FileHandler.__build_query(self.request).filter(FileModel.user == str(user_key.id())).order(-FileModel.created)
+        if FileHandler.__file_is_shared(self.request.get("id"), self.request.get("collab_id")) or self.logged_in:
+            files = FileHandler.__build_query(self.request)
+            
+            if self.logged_in:
+                user_key = self.current_user.key
+                files = files.filter(FileModel.user == str(user_key.id()))
+                
+            files = files.order(-FileModel.created)
 
             serialized_files = {}
             serialized_files["files"] = [x.get_json() for x in files]
@@ -54,10 +58,10 @@ class FileHandler(basehandlers.BaseHandler):
             self.response.write(json.dumps(serialized_files))
         else:
             self.error(401)
-    
+
     def put(self, file_id):
         """Updates a given FileModel with the data provided
-        
+
             Args:
                 file_id: The ID of the FileModel to Update
 
@@ -65,15 +69,22 @@ class FileHandler(basehandlers.BaseHandler):
                 The User does not need to be logged in for this, but will require a Collaboration key if not
         """
         file_model = FileModel.get_by_id(long(file_id))
-        #TODO add collab check
-        if file_model and file_model.user == str(self.current_user.key.id()):
-            data = json.loads(self.request.body)
+        user = self.current_user if self.logged_in else None
+        data = json.loads(self.request.body)
+        collab_id = None
+
+        try:
+            collab_id = data["collab_id"]
+        except KeyError:
+            collab_id = None
+
+        if file_model and (FileHandler.__file_is_shared(file_id, collab_id) or (user and file_model.user == str(user.key.id()))):
             try:
                 metadata = data["metadata"]
             except AttributeError:
                 metadata = None
-            
-            file_model = FileHandler.__set_entity_attrs(file_model, data, FileModel)
+
+            file_model = FileHandler.__set_entity_attrs(file_model, data)
 
             if metadata:
                 if file_model.file_type == "image":
@@ -83,7 +94,10 @@ class FileHandler(basehandlers.BaseHandler):
                 elif file_model.file_type == "video":
                     file_model.video_metadata = FileHandler.__set_entity_attrs(file_model.video_metadata, metadata)
             file_model.put()
-    
+        else:
+            self.response.write("Update not authorised")
+            self.error(403)
+
     def delete(self, file_id):
         """Deletes a given FileModel and its associated File
 
@@ -92,14 +106,14 @@ class FileHandler(basehandlers.BaseHandler):
         """
         file_model = FileModel.get_by_id(long(file_id))
         if file_model and file_model.user == str(self.current_user.key.id()):
-            
+
             # Find and delete the blob connected to this entity
             blob = blobstore.get(file_model.blob_key)
             if blob:
                 blob.delete()
 
             file_model.key.delete()
-    
+
     def post(self):
         """Builds and creates a FileModel
 
@@ -136,7 +150,7 @@ class FileHandler(basehandlers.BaseHandler):
                 self.response.write("File metadata was invalid")
                 self.error(400)
                 return
-            
+
             file_model.put()
         else:
             self.response.write("Must be logged in")
@@ -148,8 +162,8 @@ class FileHandler(basehandlers.BaseHandler):
 
             Args:
                 entity: The ndb.Model that is being updated
-                data: The data the entity is being updated with    
-            
+                data: The data the entity is being updated with
+
             Returns:
                 The updated Entity provided
         """
@@ -161,9 +175,9 @@ class FileHandler(basehandlers.BaseHandler):
                     obj_value = int(obj_value)
                 elif isinstance(attribute, ndb.FloatProperty):
                     obj_value = float(obj_value)
-                
+
                 setattr(entity, key, obj_value)
-            
+
         return entity
 
     @staticmethod
@@ -236,16 +250,16 @@ class FileHandler(basehandlers.BaseHandler):
         if request.get("id") and request.get("id") is not None:
             q = q.filter(FileModel.key == ndb.Key('FileModel', long(request.get("id"))))
             return q
-        
+
         if request.get("name") and request.get("name") is not None:
             # GAE does not have partial string matching so name must be a full match
             q = q.filter(FileModel.name == request.get("name"))
-        
+
         if request.get("extensions") and request.get("extensions") is not None:
             extensions = request.get("extensions").split(",")
 
             q = q.filter(FileModel.extension.IN([x for x in extensions]))
-        
+
         if request.get("file_types") and request.get("file_types") is not None:
             file_types = request.get("file_types").split(",")
 
@@ -253,11 +267,23 @@ class FileHandler(basehandlers.BaseHandler):
 
         return q
 
+    @staticmethod
+    def __file_is_shared(file_id, collab_id):
+        # Check if this update is coming from a shared file
+        if collab_id and file_id:
+            collab = Collaboration.get_by_id(long(collab_id))
+            file_model = FileModel.get_by_id(long(file_id))
+
+            if collab and collab.file_model == file_model.key:
+                return True
+        
+        return False
+
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler, basehandlers.BaseHandler):
     """Handles the serving of files from the BlobStore"""
     def get(self, file_key):
         """Retrieves the File from the BlobStore
-        
+
             Args:
                 file_key: The BlobKey ID of the File
         """
@@ -278,7 +304,7 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, basehandlers.Base
         """Creates or updates a File in the BlobStore
 
             Note:
-                Will delete the old File in the BlobStore if updated 
+                Will delete the old File in the BlobStore if updated
                 because it is impossible to update a File and therefore
                 you have to replace it
         """
@@ -307,3 +333,5 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, basehandlers.Base
             self.response.out.write(json.dumps(response))
         else:
             self.error(401)
+
+

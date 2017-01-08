@@ -1,13 +1,14 @@
 $(function () {
     var fileApi = new FileApi(),
         fileData = null,
-        fileMediaUpdated = false;
+        fileMediaUpdated = false,
+        collabId = window.location.pathname.split("/")[2];
 
     getFile = function () {
         var id = fileData ? fileData.id : $("#edit-file").attr("data-id");
 
         if (id) {
-            var filters = "id=" + id;
+            var filters = "id=" + id + "&collab_id=" + collabId;
             fileApi.getFiles(filters, function (data) {
                 var file = data[0];
                 fileData = file;
@@ -97,8 +98,8 @@ $(function () {
     }
 
     clearFileInfo = function () {
-        $("input").val("");
-        $("#edit-information").empty();
+        $("input").not("input[type=hidden]").val("");
+        $("#edit-information input, label").not("input[type=hidden]").remove();
         $("#edit-functions").empty();
     }
 
@@ -152,7 +153,7 @@ $(function () {
 
         return serialized;
     }
-    
+
     convertFormToJSON = function (form) {
         var array = getSerializedFormArray($(form)),
             json = {},

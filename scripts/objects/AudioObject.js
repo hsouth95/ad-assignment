@@ -8,7 +8,6 @@ var AudioObject = function(options) {
     this.file_type = options.file_type;
 }
 
-
 AudioObject.prototype.getDisplayableAttributes = function() {
     return {
         name: new Field({
